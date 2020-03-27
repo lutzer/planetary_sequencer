@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "canvas-sketch src/index.js --dir build --html=src/index.html --open --hot",
-    "build": "canvas-sketch src/index.js --source-map false --dir build --build --html=src/index.html --inline",
+    "start": "canvas-sketch src/index.js --dir docs --html=src/index.html --open --hot",
+    "build": "canvas-sketch src/index.js --source-map false --dir docs --build --html=src/index.html --inline",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
