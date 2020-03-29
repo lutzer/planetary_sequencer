@@ -4,7 +4,7 @@ An Interactive Sequencer inspired by Planetary Movements
 
 ## Demo
 
-Check demo under [https://lutzer.github.io/planetary_sequencer/](https://lutzer.github.io/planetary_sequencer/)
+Demo under [https://lutzer.github.io/planetary_sequencer/](https://lutzer.github.io/planetary_sequencer/).
 
 ## Setup
 
@@ -14,4 +14,8 @@ Check demo under [https://lutzer.github.io/planetary_sequencer/](https://lutzer.
 ## Run
 
 * run with `npm start`
-* build html bundle with `npm run build`
+* build html into docs folder with `npm run build`
+
+## Links
+
+* https://github.com/shakiba/stage.js
