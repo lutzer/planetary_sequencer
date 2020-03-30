@@ -40,7 +40,7 @@ class BasePlanet extends CanvasElement {
     phase: 0,
     opacity : 1.0,
     mass : 1.0,
-    steps : 1,
+    steps : 0,
     triggerCallback: () => {}
   }
 

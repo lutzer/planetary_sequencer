@@ -10,7 +10,6 @@ import random from 'canvas-sketch-util/random'
 import { sampler, enableSound } from './sound/sampler';
 //@ts-ignore 
 import palettes from 'nice-color-palettes'
-import { LoaderOptionsPlugin } from 'webpack';
 
 const settings = {
   width: 512,
@@ -61,7 +60,7 @@ const app = (function() {
   // create sampler
   const piano = sampler 
   function onNoteTriggered(params: { [name: string]: SoundParam }, step: number) {
-    // console.log(['play note', Note.fromInt(params.note.sum) + params.octave.sum, params.gate.sum])
+    console.debug(['play note', Note.fromInt(params.note.sum) + params.octave.sum, params.gate.sum])
     if (piano.loaded)
       piano.triggerAttackRelease(Note.fromInt(params.note.sum) + params.octave.sum, params.gate.sum);
   }
@@ -137,11 +136,11 @@ const app = (function() {
 
   return {
     start : () => {
-      randomize()
+      randomize() 
       loop()
     },
     startTestScene : () => {
-      createTestScene()
+      createTestScene() 
       loop()
     },
     restart : () => {

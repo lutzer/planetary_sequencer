@@ -13,9 +13,7 @@ class Stage {
       this.adjustSize()
     })
 
-    window.addEventListener('load', () => {
-      this.adjustSize()
-    })
+    this.adjustSize()
   }
 
   get renderer() : CanvasRenderingContext2D {
@@ -39,8 +37,8 @@ class Stage {
 
   adjustSize() {
     var scale = Math.min(window.innerWidth*0.9 / this.width, window.innerHeight*0.9 / this.height)  
-    this.canvas.style.width = scale < 1.0 ? this.width * scale + 'px' : 'none'
-    this.canvas.style.height = scale < 1.0 ? this.height * scale * this.aspectRatio + 'px' : 'none'
+    this.canvas.style.width = (scale < 1.0 ? this.width * scale : this.width) + 'px'
+    this.canvas.style.height = (scale < 1.0 ? this.height * scale * this.aspectRatio : this.height) + 'px'
   }
 
   
