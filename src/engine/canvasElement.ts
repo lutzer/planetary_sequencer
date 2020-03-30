@@ -1,6 +1,7 @@
 import { Stage } from './stage'
 import { matrix, multiply, Matrix } from 'mathjs'
 import { toDOMMatrix } from './utils'
+import _ from 'lodash'
 
 class CanvasElement {
 
@@ -45,6 +46,15 @@ class CanvasElement {
   addChild(child : CanvasElement) {
     child.parent = this
     this.children.push(child)
+  }
+
+  remove(child : CanvasElement) : CanvasElement {
+    var removed = _.remove(this.children, child)
+    return _.isEmpty(removed) ? null : removed[0]
+  }
+
+  clear() {
+    this.children = []
   }
 
   beforeDraw(stage : Stage) {

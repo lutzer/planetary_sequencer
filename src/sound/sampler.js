@@ -4,7 +4,7 @@ function enableSound(enable) {
   if (enable) {
     Tone.start()
   }
-  Tone.Master.mute = enable
+  Tone.Master.mute = !enable
 }
 
 // const sampler = {}

@@ -55,7 +55,7 @@ class NotePlanet extends BasePlanet {
   }
 
   constructor({ octave, distance, note, phase = 0.0, gate = 0.5 } : { octave: number, distance: number, note: string, phase?: number, gate? : number }) {
-    super({x: 0,y: 0}, {distance, phase, steps: 1, size: 0.01 + octave*0.01, fill: '#eeeeee'})
+    super({x: 0,y: 0}, {distance, phase, steps: 1, size: 0.08 - octave*0.01, fill: '#eeeeee'})
 
     this.parameters.length.val = 1/distance
     this.parameters.gate.val = gate

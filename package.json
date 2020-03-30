@@ -23,6 +23,7 @@
     "canvas-sketch-util": "^1.10.0",
     "lodash": "^4.17.15",
     "mathjs": "^6.6.2",
+    "music-scale": "^1.2.0",
     "nice-color-palettes": "^3.0.0",
     "tone": "^13.8.25"
   },
