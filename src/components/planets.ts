@@ -3,6 +3,7 @@
 import { CanvasElement } from './../engine/canvasElement'
 import { Stage } from '../engine/stage'
 import { toDOMMatrix } from '../engine/utils'
+import { InstrumentTypes } from '../sound/types'
 
 const PULSE_SIZE = 1.5 
 
@@ -10,14 +11,16 @@ class BasePlanet extends CanvasElement {
 
     options : {
       size : number
-      distance : number,
+      distance : number
       fill : string
       stroke : string
+      phase: number
     } = {
       size : 1.0, 
       distance : 0, 
       fill : 'white',
-      stroke : 'black'
+      stroke : 'black',
+      phase: 0
     }
 
     angle : number = 0.0
@@ -26,20 +29,28 @@ class BasePlanet extends CanvasElement {
     constructor({x,y} : { x: number, y: number }, options? : object) {
       super({x,y})
       Object.assign(this.options, options)
+
+      this.reset()
+    }
+
+    reset() {
+      this.angle = this.options.phase * Math.PI*2
     }
   
-    update(dt : number) {
+    update(dt: number, bpm: number) {
       const { distance } = this.options
+
+      const radPerSecond = bpm / 60 * Math.PI/2
 
       // update angle & position
       if (distance > 0) {
-        this.angle = (this.angle + dt * 1/distance) % (Math.PI*2)
-        this.position = [ Math.cos(this.angle) * distance, Math.sin(this.angle) * distance ]
+        this.angle = (this.angle + dt * radPerSecond/distance) % (Math.PI*2)
+        this.position = [ Math.cos(this.angle) * Math.sqrt(distance), Math.sin(this.angle) * Math.sqrt(distance) ]
       }
 
       //update childrens positions
       this.children.forEach( (child : BasePlanet) => {
-        child.update(dt)
+        child.update(dt, bpm)
       })
     }
 
@@ -88,14 +99,15 @@ class BasePlanet extends CanvasElement {
 }
 
 class InstrumentPlanet extends BasePlanet {
-  constructor({x, y} : {x:number, y: number}, options : object = {}) {
-    super({x,y}, {...options, size: 0.2})
+
+  constructor({x, y, type, channel = null} : {x:number, y: number, type : InstrumentTypes, channel? : number }) {
+    super({x,y}, { type, channel, size: 0.1})
   }
 }
 
 class NotePlanet extends BasePlanet {
   constructor({ octave, distance, note, phase = 0.1 } : { octave: number, distance: number, note: string, phase?: number }) {
-    super({x: 0,y: 0}, {octave, distance, note, size: 0.1, fill: '#eeeeee'})
+    super({x: 0,y: 0}, {octave, distance, note, phase, size: 0.05 + octave*0.02, fill: '#eeeeee'})
   }
 }
 
