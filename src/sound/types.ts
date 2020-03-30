@@ -38,7 +38,7 @@ class SoundParam {
   }
 
   get sum() : number {
-    return this.val + this.mod
+    return Math.max(0, this.val + this.mod)
   }
 }
 

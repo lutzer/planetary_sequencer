@@ -35,7 +35,7 @@
   #caption {
       position: absolute;
       padding-top:50px;
-      text-align: left;
+      text-align: center;
   }
   </style>
 </head>
@@ -53,13 +53,13 @@
         caption.style.marginTop = canvas.offsetHeight/2 + 'px'
       }
 
-      window.onresize = () => {
+      window.addEventListener('resize', () => {
         adjustLayout()
-      }
+      })
 
-      window.onload = () => {
+      window.addEventListener('load', () => {
         adjustLayout()
-      }
+      })
     </script>
 </body>
 </html>

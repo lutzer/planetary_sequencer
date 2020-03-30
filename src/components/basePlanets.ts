@@ -40,7 +40,7 @@ class BasePlanet extends CanvasElement {
     phase: 0,
     opacity : 1.0,
     mass : 1.0,
-    steps : 0,
+    steps : 1,
     triggerCallback: () => {}
   }
 
@@ -72,9 +72,10 @@ class BasePlanet extends CanvasElement {
 
   update(dt: number, bpm: number) {
     const { distance, mass, steps } = this.options
-    const previousAngle = this.angle
 
     const radPerSecond = bpm / 60 * Math.PI/2
+
+    const previousAngle = this.angle
 
     // update angle & position
     if (distance > 0) {
@@ -84,20 +85,26 @@ class BasePlanet extends CanvasElement {
     }
 
     // check if step got triggered
-    if (steps > 0) {
-      const prevDist = ((angularSum(previousAngle,Math.PI/2) / Math.PI / 2) * steps) % 1
-      const newDist = ((angularSum(this.angle, Math.PI/2) / Math.PI / 2) * steps) % 1
-      if (newDist < prevDist) {
-        this.onTriggered(Math.floor((angularSum(this.angle, Math.PI/2) / Math.PI / 2) * steps))
-      }
-    }
+    this.checkTriggers(previousAngle, this.angle)
 
+    // update pulse animation
     this.pulse = Math.max(0, this.pulse - dt * this.PULSE_SPEED)
 
-    //update childrens positions
+    //update children
     this.children.forEach( (child : BasePlanet) => {
       child.update(dt, bpm)
     })
+  }
+
+  checkTriggers(previousAngle : number, currentAngle : number) {
+    const { steps } = this.options
+    if (steps > 0) {
+      const prevDist = ((angularSum(previousAngle,Math.PI/2) / Math.PI / 2) * steps) % 1
+      const newDist = ((angularSum(currentAngle, Math.PI/2) / Math.PI / 2) * steps) % 1
+      if (newDist < prevDist) {
+        this.onTriggered(Math.floor((angularSum(currentAngle, Math.PI/2) / Math.PI / 2) * steps))
+      }
+    }
   }
 
   draw(stage : Stage) {

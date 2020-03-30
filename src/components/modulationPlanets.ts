@@ -19,7 +19,7 @@ class BurstPlanet extends BaseModulationPlanet {
     repeats : 0.0
   }
 
-  constructor({ distance, phase = 0.0, repeats } : { distance: number, steps: number, phase? : number, repeats : number}) {
+  constructor({ distance, repeats, phase = 0.0 } : { distance: number, repeats : number, phase? : number }) {
     super({distance, steps : 1, phase})
 
     this.options.fill = 'green'

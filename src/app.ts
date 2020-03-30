@@ -10,15 +10,22 @@ import random from 'canvas-sketch-util/random'
 import { sampler, enableSound } from './sound/sampler';
 //@ts-ignore 
 import palettes from 'nice-color-palettes'
+import { LoaderOptionsPlugin } from 'webpack';
 
 const settings = {
   width: 512,
   height: 512,
-  zoom: 0.7
+  zoom: 0.7 
 }
 
-function generateSimulationParams() : any {
-  return {
+function generateSimulationParams(debug = false) : any {
+  return debug ? {
+    bpm : 60,
+    numberOfNotes: 1,
+    scale : [0],
+    transpose : 0,
+    colors : ['white']
+  } : {
     bpm : random.range(10,60),
     numberOfNotes: random.range(4,20),
     scale : random.pick(scales),
@@ -31,16 +38,15 @@ window.addEventListener('load', () => {
   var enabled = false
   var soundbutton = document.getElementById('button-sound')
   soundbutton.innerHTML = "Sound off"
+  enableSound(false)
   soundbutton.addEventListener('click', () => {
-    enabled = !enabled
-    enableSound(enabled)
+    enableSound(enabled = !enabled)
     soundbutton.innerHTML = enabled ? "Sound on" : "Sound off"
   })
-  enableSound(false)
 
   var randomizeButton = document.getElementById('button-randomize')
   randomizeButton.addEventListener('click', () => {
-    app.restart()
+    app.restart() 
   })
 })
 
@@ -55,9 +61,9 @@ const app = (function() {
   // create sampler
   const piano = sampler 
   function onNoteTriggered(params: { [name: string]: SoundParam }, step: number) {
-    console.log(['play note', Note.fromInt(params.note.sum) + params.octave.sum])
+    // console.log(['play note', Note.fromInt(params.note.sum) + params.octave.sum, params.gate.sum])
     if (piano.loaded)
-      piano.triggerAttack(Note.fromInt(params.note.sum) + params.octave.sum);
+      piano.triggerAttackRelease(Note.fromInt(params.note.sum) + params.octave.sum, params.gate.sum);
   }
 
   // add instrument to canvas
@@ -65,6 +71,26 @@ const app = (function() {
 
   // param object
   var params : any = {}
+
+  function createTestScene() {
+    instrument.clear()
+
+    params = generateSimulationParams(true)
+
+    var note = new NotePlanet({
+        note: 'C', 
+        octave: 3, 
+        distance: 1/4, 
+        phase : 0,
+        fill : 'white',
+    })
+
+    note.addChild(new GatePlanet({ distance : 1, steps : 4, phase: 0.25, gate : [-0.9,-0.5,0.0,1.0]}))
+    note.addChild(new BurstPlanet({ distance: 1, repeats : 10 }))
+
+    instrument.addChild(note) 
+
+  }
 
   function randomize() {
     instrument.clear()
@@ -81,8 +107,9 @@ const app = (function() {
         octave: random.rangeFloor(2,6), 
         distance: random.pick([1,1/2,1/4]), 
         phase : random.rangeFloor(0,8)/8,
-        fill : params.colors[noteIndex % params.colors.length]
-      }))
+        fill : params.colors[noteIndex % params.colors.length],
+        gate: random.range(0.1,2.0)
+      })) 
     })
   } 
   
@@ -90,6 +117,7 @@ const app = (function() {
       var context = stage.renderer
       context.resetTransform()
       context.lineWidth = 1/stage.width
+
       //clear canvas
       context.globalAlpha = 1.0
       context.fillStyle = 'white'
@@ -112,8 +140,12 @@ const app = (function() {
       randomize()
       loop()
     },
+    startTestScene : () => {
+      createTestScene()
+      loop()
+    },
     restart : () => {
-      randomize()
+      randomize() 
     }
   }
 })()

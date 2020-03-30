@@ -74,9 +74,23 @@ class NotePlanet extends BasePlanet {
 
   onTriggered(step : number) {
     super.onTriggered(step)
-    // reset repeat parameter when triggered
-    this.parameters.repeats.mod = 0.0
+
+    if (this.parameters.repeats.mod > 0) {
+      this.parameters.repeats.mod = 0.0
+    }
   }
+
+  // burst(repeats : number, currentStep : number) {
+  //   console.log(["burst", this.parameters])
+  //   var count = repeats
+  //   const bpm = 60
+  //   var interval = setInterval(() => {
+  //     this.options.triggerCallback(this, currentStep)
+  //     count--
+  //     if (count-- < 1)
+  //       clearInterval(interval)
+  //   }, this.parameters.length.sum * 60 / bpm * 1000 / repeats)
+  // }
 }
 
 export { NotePlanet, InstrumentPlanet }

@@ -11,7 +11,7 @@ module.exports = (env, argv) => {
   return ({
     entry: './src/index.ts',
     plugins: [
-      new CleanWebpackPlugin(),
+      isDevelopment? () => {} : new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         title: 'Planetary Sequencer',
         template: 'src/index.html'

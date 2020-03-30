@@ -38,8 +38,9 @@ class Stage {
   }
 
   adjustSize() {
-    this.canvas.style.maxWidth = window.innerWidth*0.9 < this.width ? (window.innerWidth*0.9) + 'px' : 'none'
-    this.canvas.style.maxHeight = window.innerHeight*0.9 < this.height ? (window.innerHeight*0.9) + 'px' : 'none'
+    var scale = Math.min(window.innerWidth*0.9 / this.width, window.innerHeight*0.9 / this.height)  
+    this.canvas.style.width = scale < 1.0 ? this.width * scale + 'px' : 'none'
+    this.canvas.style.height = scale < 1.0 ? this.height * scale * this.aspectRatio + 'px' : 'none'
   }
 
   
