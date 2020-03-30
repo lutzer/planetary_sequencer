@@ -55,10 +55,10 @@ class CanvasElement {
   }
 
   draw(stage : Stage) {
-    this.beforeDraw(stage)
     this.children.forEach( (child) => {
       child.draw(stage)
     })
+    this.beforeDraw(stage)
   }
 }
 

@@ -31,9 +31,37 @@
     display: block;
     box-shadow: 0px 2px 12px -2px rgba(0, 0, 0, 0.15);
   }
+
+  #caption {
+      position: absolute;
+      padding-top:50px;
+      text-align: left;
+  }
   </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    <div id="caption">
+      <button id="button-sound">Toggle Sound</button>
+    </div>
+    <script>
+      function adjustLayout() {
+        let canvas = document.getElementById('canvas')
+
+        let caption = document.getElementById('caption')
+
+        caption.style.width = canvas.offsetWidth + 'px'
+        caption.style.marginTop = canvas.offsetHeight/2 + 'px'
+        title.style.marginTop = -canvas.offsetHeight/2 + 'px'
+      }
+
+      window.onresize = () => {
+        adjustLayout()
+      }
+
+      window.onload = () => {
+        adjustLayout()
+      }
+    </script>
 </body>
 </html>

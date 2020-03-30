@@ -33,6 +33,10 @@ class Stage {
     return this.canvas.width
   }
 
+  get maxSide() : number {
+    return Math.max(this.width, this.height)
+  }
+
   adjustSize() {
     this.canvas.style.maxWidth = window.innerWidth*0.9 < this.width ? (window.innerWidth*0.9) + 'px' : 'none'
     this.canvas.style.maxHeight = window.innerHeight*0.9 < this.height ? (window.innerHeight*0.9) + 'px' : 'none'

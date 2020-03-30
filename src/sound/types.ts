@@ -1,32 +1,45 @@
+import _ from 'lodash'
 
 enum InstrumentTypes {
   MIDI, SAMPLER
 }
 
 class Note {
-  note : string
-
-  constructor(note : string) {
-    this.note = note
+  static readonly map : {[key: string]: number} = {
+    'C': 0,
+    'C#': 1,
+    'D': 2,
+    'D#': 3,
+    'E' : 4,
+    'F' : 5,
+    'F#' : 6,
+    'G' : 7,
+    'G#' : 8,
+    'A' : 9,
+    'A#' : 10,
+    'B' : 11
   }
 
-  toInt() : number {
-    const map : {[key: string]: number} = {
-      'C': 0,
-      'C#': 1,
-      'D': 2,
-      'D#': 3,
-      'E' : 4,
-      'F' : 5,
-      'F#' : 6,
-      'G' : 7,
-      'G#' : 8,
-      'A' : 9,
-      'A#' : 10,
-      'B' : 11
-    }
-    return map[this.note]
+  static toInt(note : string) : number {
+    return this.map[note]
+  }
+  static fromInt(n : number) : string {
+    return _.keys(this.map)[n]
   }
 }
 
-export { InstrumentTypes, Note }
+class SoundParam {
+  val : number
+  mod : number
+
+  constructor(value : number, modulation : number = 0.0) {
+    this.val = value
+    this.mod = modulation
+  }
+
+  get sum() : number {
+    return this.val + this.mod
+  }
+}
+
+export { InstrumentTypes, Note, SoundParam }

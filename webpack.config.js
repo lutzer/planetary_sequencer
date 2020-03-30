@@ -1,9 +1,12 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isDevelopment = argv.mode === 'development';
+
+  const builDir = 'docs'
 
   return ({
     entry: './src/index.ts',
@@ -13,10 +16,13 @@ module.exports = (env, argv) => {
         title: 'Planetary Sequencer',
         template: 'src/index.html'
       }),
+      new CopyPlugin([
+        { from: 'src/assets', to: 'assets' }
+      ]),
     ],
     output: {
       filename: 'bundle.js',
-      path: path.resolve(__dirname, 'docs'),
+      path: path.resolve(__dirname, builDir),
     },
     module: {
       rules: [
@@ -37,7 +43,7 @@ module.exports = (env, argv) => {
           use: [
             'file-loader',
           ],
-        },
+        }
       ],
     },
     resolve: {
