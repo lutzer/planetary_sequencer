@@ -14,12 +14,12 @@ interface TriggerCallbackHandler {
 
 class BasePlanet extends CanvasElement {
 
-  readonly PULSE_SIZE = 1.5
-  readonly PULSE_SPEED = 7
+  readonly PULSE_SIZE = 1.3
+  readonly PULSE_SPEED = 5
 
   readonly style = {
-    margin : 0.1,
-    stepsLineLength : 0.8
+    margin : 0.01,
+    stepsLineLength : 0.91
   }
 
   options : {

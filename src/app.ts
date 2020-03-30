@@ -8,6 +8,8 @@ import { scales } from './sound/scales'
 //@ts-ignore 
 import random from 'canvas-sketch-util/random'
 import { sampler, enableSound } from './sound/sampler';
+//@ts-ignore 
+import palettes from 'nice-color-palettes'
 
 const settings = {
   width: 512,
@@ -20,7 +22,8 @@ function generateSimulationParams() : any {
     bpm : random.range(10,60),
     numberOfNotes: random.range(4,20),
     scale : random.pick(scales),
-    transpose : random.rangeFloor(12)
+    transpose : random.rangeFloor(12),
+    colors : random.pick(palettes)
   }
 }
 
@@ -71,12 +74,14 @@ const app = (function() {
 
     // setup simulation
     _.range(params.numberOfNotes).forEach( () => {
-      var note = (random.pick(params.scale) + params.transpose) % 12
+      var noteIndex = random.rangeFloor(params.scale.length)
+      var note = (params.scale[noteIndex] + params.transpose) % 12
       instrument.addChild( new NotePlanet({
         note: Note.fromInt(note), 
         octave: random.rangeFloor(2,6), 
         distance: random.pick([1,1/2,1/4]), 
-        phase : random.rangeFloor(0,8)/8
+        phase : random.rangeFloor(0,8)/8,
+        fill : params.colors[noteIndex % params.colors.length]
       }))
     })
   } 

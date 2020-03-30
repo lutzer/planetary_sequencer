@@ -14,7 +14,7 @@ class InstrumentPlanet extends BasePlanet {
   constructor(
     {x, y, type, channel = null, scale = 1.0, noteTriggerCallback = () => {}} : 
     {x:number, y: number, type : InstrumentTypes, channel? : number, scale? : number, noteTriggerCallback? : NoteTriggerCallbackHandler }) {
-      super({x,y,scale}, { type, channel, size: 0.1})
+      super({x,y,scale}, { type, channel, size: 0.07, fill: '#eeeeee'})
 
       this.noteTriggerCallback = noteTriggerCallback
   }
@@ -54,8 +54,8 @@ class NotePlanet extends BasePlanet {
     length : new SoundParam(1)
   }
 
-  constructor({ octave, distance, note, phase = 0.0, gate = 0.5 } : { octave: number, distance: number, note: string, phase?: number, gate? : number }) {
-    super({x: 0,y: 0}, {distance, phase, steps: 1, size: 0.08 - octave*0.01, fill: '#eeeeee'})
+  constructor({ octave, distance, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : { octave: number, distance: number, note: string, phase?: number, gate? : number, fill? : string }) {
+    super({x: 0,y: 0}, {distance, phase, steps: 1, size: 0.08 - octave*0.01, fill})
 
     this.parameters.length.val = 1/distance
     this.parameters.gate.val = gate
