@@ -1,3 +1,4 @@
 import { App } from './app'
 
-App.start()
+const app = App()
+app.start()

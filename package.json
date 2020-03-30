@@ -18,18 +18,20 @@
   },
   "homepage": "https://github.com/lutzer/planetary_sequencer#readme",
   "dependencies": {
-    "@types/html-webpack-plugin": "^3.2.2",
+    "@types/lodash": "^4.14.149",
+    "@types/mathjs": "^6.0.4",
     "canvas-sketch-util": "^1.10.0",
     "lodash": "^4.17.15",
+    "mathjs": "^6.6.2",
     "nice-color-palettes": "^3.0.0",
     "tone": "^13.8.25"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
-    "@types/lodash": "^4.14.149",
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "html-webpack-plugin": "^4.0.3",
+    "@types/html-webpack-plugin": "^3.2.2",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
     "webpack": "^4.42.1",
