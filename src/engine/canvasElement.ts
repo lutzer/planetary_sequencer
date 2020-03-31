@@ -57,18 +57,25 @@ class CanvasElement {
     this.children = []
   }
 
-  beforeDraw(stage : Stage) {
+  render(stage: Stage) {
+    this.beforeDraw(stage)
+    this.draw(stage)
+    this.afterDraw(stage)
+  }
+
+  protected beforeDraw(stage : Stage) {
     if (this.parent)
       stage.renderer.setTransform(toDOMMatrix(this.parent.transformMatrix))
     else
       stage.renderer.resetTransform()
   }
 
-  draw(stage : Stage) {
+  draw(stage : Stage) {}
+
+  protected afterDraw(stage : Stage) {
     this.children.forEach( (child) => {
-      child.draw(stage)
+      child.render(stage)
     })
-    this.beforeDraw(stage)
   }
 }
 

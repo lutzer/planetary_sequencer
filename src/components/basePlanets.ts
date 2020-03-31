@@ -129,15 +129,15 @@ class BasePlanet extends BasePlanetElement {
   }
 
   update(time: number, bpm: number) {
-    const { distance, mass, phase} = this.props
+    const { distance, mass } = this.props
     const previousAngle = this.angle
 
     const angularSpeed = bpm / 60 * Math.PI/2
-    this.angle = (this.phaseRad + time * angularSpeed) % (Math.PI*2)
+    this.angle = (this.phaseRad + time * angularSpeed/distance) % (Math.PI*2)
 
     // update angle & position
     if (distance > 0) {
-      const drawDist = mass * Math.log(1+distance)/Math.log(2)
+      const drawDist = Math.log(1+distance)/Math.log(2) * mass
       this.position = [ Math.cos(this.angle) * drawDist, Math.sin(this.angle) * drawDist ]
     }
 
@@ -146,7 +146,10 @@ class BasePlanet extends BasePlanetElement {
       
     // check if step got triggered
     var triggered = this.stepAngles.findIndex( (val) => {
-      return previousAngle < val && this.angle > val
+      if (previousAngle < this.angle )
+        return previousAngle < val && this.angle > val
+      else
+        return previousAngle < (val + Math.PI*2) && this.angle > val
     })
     if (triggered != -1) {
       this.onTriggered(time, triggered)
@@ -157,7 +160,6 @@ class BasePlanet extends BasePlanetElement {
 
   draw(stage: Stage) {
     super.draw(stage)
-
     this.drawPulse(stage)
   }
 

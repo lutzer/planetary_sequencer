@@ -5,16 +5,16 @@ import { InstrumentPlanet, NotePlanet } from './components/instrumentPlanets'
 import { GatePlanet, BurstPlanet } from './components/modulationPlanets'
 import { InstrumentTypes, Note, SoundParam, Sound } from './sound/types'
 import { scales } from './sound/scales'
-//@ts-ignore 
+//@ts-ignore xs
 import random from 'canvas-sketch-util/random'
-import { sampler, enableSound } from './sound/sampler';
+import { Sampler, Synth, enableSound } from './sound/audioOutput';
 //@ts-ignore 
 import palettes from 'nice-color-palettes'
 
 const settings = {
   width: 512,
   height: 512,
-  zoom: 0.7 
+  zoom: 0.7
 }
 
 function generateSimulationParams(debug = false) : any {
@@ -57,12 +57,13 @@ const app = (function() {
   // create root node
   var instrument = new InstrumentPlanet({x: 0, y: 0, scale: settings.zoom, type : InstrumentTypes.MIDI, noteTriggerCallback : onNoteTriggered})
 
-  // create sampler
-  const piano = sampler 
+  // create audio output
+  const audioOutput = new Sampler() 
   function onNoteTriggered(sound: Sound, step: number) {
-    console.debug(['play note', Note.fromInt(sound.note.sum) + sound.octave.sum, sound.gate.sum])
-    if (piano.loaded)
-      piano.triggerAttackRelease(Note.fromInt(sound.note.sum) + sound.octave.sum, sound.gate.sum);
+    console.debug(['play note', sound.getNote(), sound.getGate()])
+    if (audioOutput.isLoaded()) {
+      audioOutput.play(sound.getNote(), sound.getGate())
+    }
   }
 
   // add instrument to canvas
@@ -84,8 +85,8 @@ const app = (function() {
         fill : 'white',
     })
 
-    note.addChild(new GatePlanet({ distance : 1, steps : 4, phase: 0.25, gate : [-0.9,-0.5,0.0,1.0]}))
-    note.addChild(new BurstPlanet({ distance: 1, repeats : 10 }))
+    note.addChild(new GatePlanet({ distance : 1/9, steps : 4, phase: 0.25, gate : [-0.9,-0.5,0.0,1.0]}))
+    note.addChild(new BurstPlanet({ distance: 1/5, repeats : 10 }))
 
     instrument.addChild(note) 
 
@@ -101,13 +102,14 @@ const app = (function() {
     _.range(params.numberOfNotes).forEach( () => {
       var noteIndex = random.rangeFloor(params.scale.length)
       var note = (params.scale[noteIndex] + params.transpose) % 12
+      var distance = random.pick([1,1/2,1/4])
       instrument.addChild( new NotePlanet({
         note: Note.fromInt(note), 
         octave: random.rangeFloor(2,6), 
-        distance: random.pick([1,1/2,1/4]), 
+        distance: distance, 
         phase : random.rangeFloor(0,8)/8,
         fill : params.colors[noteIndex % params.colors.length],
-        gate: random.range(0.1,2.0)
+        gate: random.range(0.2,2.0)
       })) 
     })
   } 
@@ -129,7 +131,7 @@ const app = (function() {
       instrument.drawConnections(stage, 0.2)
       
       //draw everything
-      root.draw(stage)
+      root.render(stage)
 
       requestAnimationFrame((time) => loop(time / 1000 ));
   }
