@@ -5,9 +5,9 @@ import { InstrumentPlanet, NotePlanet } from './components/instrumentPlanets'
 import { GatePlanet, BurstPlanet } from './components/modulationPlanets'
 import { InstrumentTypes, Note, SoundParam, Sound } from './sound/types'
 import { scales } from './sound/scales'
-//@ts-ignore xs
+//@ts-ignore
 import random from 'canvas-sketch-util/random'
-import { Sampler, Synth, enableSound } from './sound/audioOutput';
+import { MidiOutput } from './sound/outputs'
 //@ts-ignore 
 import palettes from 'nice-color-palettes'
 
@@ -33,22 +33,6 @@ function generateSimulationParams(debug = false) : any {
   }
 }
 
-window.addEventListener('load', () => {
-  var enabled = false
-  var soundbutton = document.getElementById('button-sound')
-  soundbutton.innerHTML = "Sound off"
-  enableSound(false)
-  soundbutton.addEventListener('click', () => {
-    enableSound(enabled = !enabled)
-    soundbutton.innerHTML = enabled ? "Sound on" : "Sound off"
-  })
-
-  var randomizeButton = document.getElementById('button-randomize')
-  randomizeButton.addEventListener('click', () => {
-    app.restart() 
-  })
-})
-
 const app = (function() {
 
   const stage = new Stage({ width: settings.width, height: settings.height })
@@ -58,11 +42,11 @@ const app = (function() {
   var instrument = new InstrumentPlanet({x: 0, y: 0, scale: settings.zoom, type : InstrumentTypes.MIDI, noteTriggerCallback : onNoteTriggered})
 
   // create audio output
-  const audioOutput = new Sampler() 
+  const audioOutput = new MidiOutput({ channel: 1 });
   function onNoteTriggered(sound: Sound, step: number) {
     console.debug(['play note', sound.getNote(), sound.getGate()])
-    if (audioOutput.isLoaded()) {
-      audioOutput.play(sound.getNote(), sound.getGate())
+    if (audioOutput.isEnabled()) {
+      audioOutput.scheduleNote(sound.getNote(), sound.getGate() * 500)
     }
   }
 
@@ -138,8 +122,8 @@ const app = (function() {
 
   return {
     start : () => {
-      randomize() 
-      loop()
+      randomize()
+      loop() 
     },
     startTestScene : () => {
       createTestScene() 
@@ -147,6 +131,9 @@ const app = (function() {
     },
     restart : () => {
       randomize() 
+    },
+    enableSound : (enable : boolean) => {
+      audioOutput.enable(enable)
     }
   }
 })()

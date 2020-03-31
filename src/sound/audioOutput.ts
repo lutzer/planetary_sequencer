@@ -62,11 +62,7 @@ class Sampler extends AudioOutput {
   isLoaded() {
     return this.sampler.loaded;
   }
-
 }
-
-// const sampler = {}
-
 
 class Synth extends AudioOutput {
 

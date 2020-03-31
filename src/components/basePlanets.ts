@@ -42,12 +42,10 @@ class BasePlanetElement extends CanvasElement {
     {x,y,scale = 1.0} : { x: number, y: number, scale? : number }, props? : object ) {
     super({x,y,scale})
 
-    // add default properties
     Object.assign(this.props, props)
   }
 
   update(time: number, bpm: number = 1.0) {
-    //update children
     this.children.forEach( (child : BasePlanet) => {
       child.update(time, bpm)
     })
@@ -155,6 +153,7 @@ class BasePlanet extends BasePlanetElement {
       this.onTriggered(time, triggered)
     }
 
+    //update children
     super.update(time, bpm)
   }
 
@@ -177,8 +176,6 @@ class BasePlanet extends BasePlanetElement {
     context.closePath()
     context.stroke()
   }
-
-  
 }
 
 class BaseModulationPlanet extends BasePlanet {
