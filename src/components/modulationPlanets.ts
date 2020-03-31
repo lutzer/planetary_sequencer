@@ -10,6 +10,8 @@ class GatePlanet extends BaseModulationPlanet {
   constructor({ distance, steps = 1, phase = 0.0, gate = [0.0, 1.0] } : { distance: number, steps: number, phase? : number, gate? : number[]}) {
     super({distance, steps, phase})
 
+    this.props.fill = 'red'
+
     this.modulationParams.gate = gate
   }
 }
@@ -21,8 +23,7 @@ class BurstPlanet extends BaseModulationPlanet {
 
   constructor({ distance, repeats, phase = 0.0 } : { distance: number, repeats : number, phase? : number }) {
     super({distance, steps : 1, phase})
-
-    this.options.fill = 'green'
+    this.props.fill = 'green'
 
     this.modulationParams.repeats = repeats
   }

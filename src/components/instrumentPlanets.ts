@@ -1,20 +1,26 @@
-import { InstrumentTypes, SoundParam, Note } from '../sound/types'
+import { InstrumentTypes, SoundParam, Note, Sound } from '../sound/types'
 import { BasePlanet, TriggerCallbackHandler } from './basePlanets'
 import { GatePlanet, BurstPlanet } from './modulationPlanets'
 import { Stage } from '../engine/stage'
 
 interface NoteTriggerCallbackHandler {
-  (params : { [name: string]: SoundParam }, step : number) : void
+  (sound : Sound, step : number) : void
 }
 
 class InstrumentPlanet extends BasePlanet {
 
   noteTriggerCallback : NoteTriggerCallbackHandler
 
+  type : InstrumentTypes
+  channel : number
+
   constructor(
     {x, y, type, channel = null, scale = 1.0, noteTriggerCallback = () => {}} : 
     {x:number, y: number, type : InstrumentTypes, channel? : number, scale? : number, noteTriggerCallback? : NoteTriggerCallbackHandler }) {
-      super({x,y,scale}, { type, channel, size: 0.07, fill: '#eeeeee'})
+      super({x,y,scale}, {size: 0.07, fill: '#eeeeee'})
+
+      this.type = type
+      this.channel = channel
 
       this.noteTriggerCallback = noteTriggerCallback
   }
@@ -25,7 +31,7 @@ class InstrumentPlanet extends BasePlanet {
   }
 
   drawStepLine(stage : Stage) {
-    const { stroke, size } = this.options
+    const { stroke, size } = this.props
     const context = stage.renderer
     context.globalAlpha = 0.1
     context.strokeStyle = stroke
@@ -46,16 +52,12 @@ class InstrumentPlanet extends BasePlanet {
 
 class NotePlanet extends BasePlanet {
 
-  parameters = {
-    gate : new SoundParam(0.5),
-    note : new SoundParam(0),
-    octave : new SoundParam(1),
-    repeats : new SoundParam(0),
-    length : new SoundParam(1)
-  }
+  parameters = new Sound()
 
   constructor({ octave, distance, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : { octave: number, distance: number, note: string, phase?: number, gate? : number, fill? : string }) {
-    super({x: 0,y: 0}, {distance, phase, steps: 1, size: 0.08 - octave*0.01, fill})
+    super({x: 0,y: 0}, {distance, phase, steps: 1, fill})
+
+    this.props.size = 0.08 - octave*0.01
 
     this.parameters.length.val = 1/distance
     this.parameters.gate.val = gate
@@ -72,8 +74,8 @@ class NotePlanet extends BasePlanet {
     }
   }
 
-  onTriggered(step : number) {
-    super.onTriggered(step)
+  onTriggered(time: number, step : number) {
+    super.onTriggered(time, step)
 
     if (this.parameters.repeats.mod > 0) {
       this.parameters.repeats.mod = 0.0

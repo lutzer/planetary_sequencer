@@ -17,10 +17,7 @@ class Stage {
   }
 
   get renderer() : CanvasRenderingContext2D {
-    return <CanvasRenderingContext2D>this.canvas.getContext('2d', {
-      antialias: true,
-      willReadFrequently: true
-    })
+    return <CanvasRenderingContext2D>this.canvas.getContext('2d', {})
   }
 
   get height() : number {

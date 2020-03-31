@@ -1,4 +1,4 @@
 import { app } from './app'
 
-app.start()  
-//app.startTestScene()
+// app.start()  
+app.startTestScene()

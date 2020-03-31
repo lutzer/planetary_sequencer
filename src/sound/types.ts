@@ -28,6 +28,39 @@ class Note {
   }
 }
 
+class Sound {
+
+  gate = new SoundParam(0.5)
+  note = new SoundParam(0)
+  octave = new SoundParam(1)
+  repeats = new SoundParam(0)
+  length = new SoundParam(1)
+
+  // scale = [0,1,2,3,4,5,6,7,8,9,11]
+  // rootNote = 0
+
+  getNote() : string {
+    return Note.fromInt(this.note.sum) + this.octave.sum 
+  }
+
+  getLength() : number {
+    return this.length.sum
+  }
+
+  getGate() : number {
+    return this.gate.sum
+  }
+
+  getRepeats() : number {
+    return this.repeats.sum
+  }
+
+  // setScale(rootNote: number, scale : number[]) {
+  //   this.rootNote = rootNote
+  //   this.scale = scale
+  // }
+}
+
 class SoundParam {
   val : number
   mod : number
@@ -42,4 +75,4 @@ class SoundParam {
   }
 }
 
-export { InstrumentTypes, Note, SoundParam }
+export { InstrumentTypes, Note, SoundParam, Sound }

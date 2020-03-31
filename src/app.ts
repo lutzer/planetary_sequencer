@@ -3,7 +3,7 @@ import { Stage } from "./engine/stage"
 import { CanvasElement } from './engine/canvasElement'
 import { InstrumentPlanet, NotePlanet } from './components/instrumentPlanets'
 import { GatePlanet, BurstPlanet } from './components/modulationPlanets'
-import { InstrumentTypes, Note, SoundParam } from './sound/types'
+import { InstrumentTypes, Note, SoundParam, Sound } from './sound/types'
 import { scales } from './sound/scales'
 //@ts-ignore 
 import random from 'canvas-sketch-util/random'
@@ -19,7 +19,7 @@ const settings = {
 
 function generateSimulationParams(debug = false) : any {
   return debug ? {
-    bpm : 60,
+    bpm : 30,
     numberOfNotes: 1,
     scale : [0],
     transpose : 0,
@@ -59,10 +59,10 @@ const app = (function() {
 
   // create sampler
   const piano = sampler 
-  function onNoteTriggered(params: { [name: string]: SoundParam }, step: number) {
-    console.debug(['play note', Note.fromInt(params.note.sum) + params.octave.sum, params.gate.sum])
+  function onNoteTriggered(sound: Sound, step: number) {
+    console.debug(['play note', Note.fromInt(sound.note.sum) + sound.octave.sum, sound.gate.sum])
     if (piano.loaded)
-      piano.triggerAttackRelease(Note.fromInt(params.note.sum) + params.octave.sum, params.gate.sum);
+      piano.triggerAttackRelease(Note.fromInt(sound.note.sum) + sound.octave.sum, sound.gate.sum);
   }
 
   // add instrument to canvas
@@ -123,7 +123,7 @@ const app = (function() {
       context.fillRect(0,0, stage.width, stage.height)
 
       // update all nodes
-      instrument.update(dt, params.bpm || 0)
+      instrument.update(time, params.bpm || 0)
 
       // draw lines between planets
       instrument.drawConnections(stage, 0.2)
@@ -131,7 +131,7 @@ const app = (function() {
       //draw everything
       root.draw(stage)
 
-      requestAnimationFrame((newTime) => loop(newTime, (newTime - time) / 1000 ));
+      requestAnimationFrame((time) => loop(time / 1000 ));
   }
 
   return {
