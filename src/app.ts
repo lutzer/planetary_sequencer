@@ -4,7 +4,7 @@ import { CanvasElement } from './engine/canvasElement'
 import { InstrumentPlanet, NotePlanet } from './components/instrumentPlanets'
 import { GatePlanet, BurstPlanet } from './components/modulationPlanets'
 import { InstrumentTypes, Note, SoundTrigger } from './sound/types'
-import { scales } from './sound/scales'
+import { scales, rythms } from './sound/audioValues'
 //@ts-ignore
 import random from 'canvas-sketch-util/random'
 import { MidiOutput } from './sound/outputs'
@@ -18,18 +18,23 @@ const settings = {
 }
 
 function generateSimulationParams(debug = false) : any {
+  const rythm = random.pick(rythms)
   return debug ? {
     bpm : 30,
     numberOfNotes: 1,
     scale : [0],
     transpose : 0,
-    colors : ['white']
+    colors : ['white'],
+    distances : [1,1/2,1/4],
+    divisor: 8
   } : {
     bpm : random.range(20,60),
     numberOfNotes: random.range(4,20),
     scale : random.pick(scales),
     transpose : random.rangeFloor(12),
-    colors : random.pick(palettes)
+    colors : random.pick(palettes),
+    distances : rythm.distances,
+    divisor : rythm.divisor
   }
 }
 
@@ -95,12 +100,11 @@ const app = (function() {
     _.range(params.numberOfNotes).forEach( () => {
       var noteIndex = random.rangeFloor(params.scale.length)
       var note = (params.scale[noteIndex] + params.transpose) % 12
-      var distance = random.pick([1,1/2,1/4])
       instrument.addChild( new NotePlanet({
         note: Note.fromInt(note), 
         octave: random.rangeFloor(2,6), 
-        distance: distance, 
-        phase : random.rangeFloor(0,8)/8,
+        distance: random.pick(params.distances), 
+        phase : random.rangeFloor(0,params.divisor)/params.divisor,
         fill : params.colors[noteIndex % params.colors.length],
         gate: random.range(0.2,2.0)
       })) 
