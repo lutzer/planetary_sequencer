@@ -1,5 +1,5 @@
 //@ts-ignore
-import webmidi from 'webmidi';
+import WebMidi from 'webmidi';
 import _ from 'lodash'
 
 class OutputDevice {
@@ -29,7 +29,7 @@ class OutputDevice {
 class MidiOutput extends OutputDevice {
 
   midiChannel : number = 0
-  midiOutput : webmidi.MIDIOutput = null
+  midiOutput : WebMidi.MIDIOutput = null
 
   constructor({ channel = 1} : { channel : number }) {
     super()
@@ -38,44 +38,50 @@ class MidiOutput extends OutputDevice {
   }
 
   isEnabled() : boolean {
-    return webmidi.enabled && this.enabled
+    return WebMidi.enabled && this.enabled
   }
 
   async enable(enable : boolean) : Promise<any> {
     return new Promise( (resolve, reject) => {
       this.enabled = enable
-      if (enable) 
-        webmidi.enable( (err : any) => {
+      if (enable && !WebMidi.enabled) {
+        WebMidi.enable( (err : any) => {
           if (err) {
             console.warn("web midi could not be enabled")
             reject(err)
           } else
-            if (!_.isEmpty(this.outputs))
-              this.setOutput(this.outputs[0])
             resolve()
         })
-    })
+        
+      } else {
+        resolve()
+      }
+  })
+     
   }
 
-  get outputs() : MidiOutput[] {
-    return webmidi.outputs
+  get outputs() : WebMidi.MidiOutput[] {
+    return WebMidi.outputs
   }
 
-  setOutput(output : MidiOutput) {
-    this.midiOutput = output
+  // set to null to use all outputs
+  setOutput(outputIndex : number = null) {
+    if (outputIndex != null && outputIndex > this.outputs.length)
+      console.warn("cannot select midi device with this index")
+    this.midiOutput = this.outputs[outputIndex]
   }
 
-  scheduleNote(note : string, duration: number, time: number = null) {
-    if (!this.midiOutput) {
-      console.warn("No Midi device selected")
-      return
-    }
-    time = time || this.time
-    this.midiOutput.playNote(note, this.midiChannel, { time: time, duration: duration });
+  scheduleNote(note : string, duration: number, time: number = undefined) {
+    if (this.midiOutput)
+      this.midiOutput.playNote(note, this.midiChannel, { time: time, duration: duration });
+    else
+      this.outputs.forEach( (output : WebMidi.MIDIOutput) => {
+        output.playNote(note, this.midiChannel, { time: time, duration: duration });
+      })
   }
 
   get time() : number {
-    return webmidi.time
+    return WebMidi.time
   }
 }
 

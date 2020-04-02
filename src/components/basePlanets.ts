@@ -7,35 +7,18 @@ function angularSum(angle1 : number, angle2: number ) {
   return ((angle1 + angle2) + (2*Math.PI)) % (Math.PI * 2)
 }
 
-interface TriggerCallbackHandler {
-  (planet : BasePlanet, step : number) : void
-}
+class PlanetCanvasElement extends CanvasElement {
 
-class BasePlanetElement extends CanvasElement {
-
-  readonly style = {
+  readonly STYLE = {
     margin : 0.01,
     stepsLineLength : 0.91
   }
 
-  props : {
-    size : number
-    fill : string
-    stroke : string
-    opacity : number
-    distance : number
-    phase: number
-    mass: number
-    steps : number
-  } = {
+  protected props : any = {
     size : 1.0, 
     fill : 'white',
     stroke : 'black',
-    distance : 0, 
-    phase: 0,
     opacity : 1.0,
-    mass : 1.0,
-    steps : 0
   }
 
   constructor(
@@ -43,12 +26,6 @@ class BasePlanetElement extends CanvasElement {
     super({x,y,scale})
 
     Object.assign(this.props, props)
-  }
-
-  update(time: number, bpm: number = 1.0) {
-    this.children.forEach( (child : BasePlanet) => {
-      child.update(time, bpm)
-    })
   }
 
   draw(stage : Stage) {
@@ -73,7 +50,7 @@ class BasePlanetElement extends CanvasElement {
     if(this.parent)
       context.setTransform(toDOMMatrix(this.transformMatrix))
 
-    this.children.forEach( (child : BasePlanet) => {
+    this.children.forEach( (child : PlanetCanvasElement) => {
       context.globalAlpha = opacity
       context.strokeStyle = stroke
       context.beginPath()
@@ -83,86 +60,147 @@ class BasePlanetElement extends CanvasElement {
       context.stroke()
     }) 
 
-    this.children.forEach( (child : BasePlanet) => {
+    this.children.forEach( (child : PlanetCanvasElement) => {
       child.drawConnections(stage, opacity)
     })
   }
 }
 
-class BasePlanet extends BasePlanetElement {
+class BasePlanet extends PlanetCanvasElement {
 
-  readonly PULSE_SIZE = 1.3
-  readonly PULSE_DURATION = 0.3
+  protected props : any = {
+    ...this.props,
+    distance : 0, 
+    phase: 0,
+    mass : 1.0
+  }
 
-  triggerCallback : TriggerCallbackHandler = () => {}
+  protected phaseRad : number = 0.0 
 
-  triggerTime : number = null
-  pulse : number = 0.0
+  protected bpm : number
 
-  angle : number = 0.0
-  phaseRad : number = 0.0 
+  protected orbitalPeriod : number
+  protected orbitalSpeed : number
 
-  stepAngles : number[] = []
+  protected drawDistance : number = 0
 
   constructor(
     {x,y,scale = 1.0} : { x: number, y: number, scale? : number }, 
-    props : object = {} ) {
+    props : any = {} ) {
       super({x,y, scale}, props)
 
+      Object.assign(this.props, props)
+
       this.phaseRad = this.props.phase * Math.PI * 2
-
-      this.stepAngles = _.range(0,1.0,1/this.props.steps).map( (val) => angularSum(val * 2 * Math.PI, - 0.5 * Math.PI))
+      this.drawDistance = Math.log(1+this.props.distance)/Math.log(2) * this.props.mass
   }
 
-  addChild(planet : BasePlanet) {
-    super.addChild(planet)
-    planet.triggerCallback = (planet, step) => this.onChildTriggered(planet, step)
-  }
-
-  onChildTriggered(child : BasePlanet, step: number) {}
-
-  onTriggered(time: number, step : number) {
-    this.triggerCallback(this, step)
-    this.triggerTime = time
+  setBpm(bpm : number) {
+    const { distance } = this.props
+    this.bpm = bpm
+    this.orbitalPeriod = distance * 240 / bpm * 1000
+    this.orbitalSpeed = Math.PI * 2 / this.orbitalPeriod
   }
 
   update(time: number, bpm: number) {
     const { distance, mass } = this.props
-    const previousAngle = this.angle
+    
+    if (bpm != this.bpm)
+      this.setBpm(bpm)
 
-    const angularSpeed = bpm / 60 * Math.PI/2
-    this.angle = (this.phaseRad + time * angularSpeed/distance) % (Math.PI*2)
+    // const angularSpeed = this.bpm / 60 * Math.PI/2
+    const angle = (this.phaseRad + time * this.orbitalSpeed) % (Math.PI*2) - Math.PI/2
 
     // update angle & position
     if (distance > 0) {
-      const drawDist = Math.log(1+distance)/Math.log(2) * mass
-      this.position = [ Math.cos(this.angle) * drawDist, Math.sin(this.angle) * drawDist ]
-    }
-
-    const pulseTime = this.PULSE_DURATION - (time - this.triggerTime)
-    this.pulse = pulseTime > 0 ? pulseTime / this.PULSE_DURATION : 0
-      
-    // check if step got triggered
-    var triggered = this.stepAngles.findIndex( (val) => {
-      if (previousAngle < this.angle )
-        return previousAngle < val && this.angle > val
-      else
-        return previousAngle < (val + Math.PI*2) && this.angle > val
-    })
-    if (triggered != -1) {
-      this.onTriggered(time, triggered)
+      this.position = [ Math.cos(angle) * this.drawDistance, Math.sin(angle) * this.drawDistance ]
     }
 
     //update children
+    this.children.forEach( (child : BasePlanet) => {
+      child.update(time, bpm)
+    })
+  }
+}
+
+interface TriggerCallbackHandler {
+  (planet : BaseTriggerPlanet, atTime : number, step: number) : void
+}
+
+class BaseTriggerPlanet extends BasePlanet {
+
+  readonly SCHEDULE_INTERVAL = 50 // in ms
+  readonly SCHEDULE_AHEAD = 125 // in ms
+
+  readonly PULSE_SIZE = 1.3
+  readonly PULSE_DURATION = 300
+
+  private pulse = 0.0
+
+  private lastScheduleCheckTime = 0
+  private scheduledTriggers : number[] = []
+
+  protected props : any = {
+    ...this.props,
+    steps: 1
+  }
+
+  triggerCallback : TriggerCallbackHandler = () => {}
+
+  constructor({x,y,scale = 1.0} : { x: number, y: number, scale? : number }, props : any = {} ) {
+    super({x,y,scale}, props)
+
+    Object.assign(this.props, props)
+  }
+
+  update(time : number, bpm : number) {
     super.update(time, bpm)
+    this.scheduleTriggers(time,bpm)
+
+    if (!_.isEmpty(this.scheduledTriggers)) {
+      const pulseTime = (time - this.scheduledTriggers[0])
+      this.pulse = pulseTime > 0 && pulseTime < this.PULSE_DURATION ? (this.PULSE_DURATION-pulseTime) / this.PULSE_DURATION : 0
+    } else
+      this.pulse = 0.0
+    
   }
 
-  draw(stage: Stage) {
+  scheduleTriggers(time : number, bpm : number) {
+    const { phase, steps } = this.props
+
+    // only check in a defined interval for new triggers
+    if (time - this.lastScheduleCheckTime < this.SCHEDULE_INTERVAL)
+      return
+    this.lastScheduleCheckTime = time
+
+    // remove passed steps from schedule array
+    this.scheduledTriggers = this.scheduledTriggers.filter( (val) => val + this.PULSE_DURATION  > time)
+
+    const startOfPeriod = time - ( time % this.orbitalPeriod)
+
+    // calculate trigger times for steps
+    const nextTriggers = _.range(steps).map( (step) => {
+      let nextSteptrigger = startOfPeriod + (step/steps - (phase)) * this.orbitalPeriod
+      while (nextSteptrigger < time)
+        nextSteptrigger += this.orbitalPeriod 
+      return nextSteptrigger
+    })
+
+    // schedule triggers, when inside schedule window
+    nextTriggers.forEach( (triggerTime, i) => {
+      if (triggerTime - time < this.SCHEDULE_AHEAD && !this.scheduledTriggers.includes(triggerTime)) {
+        this.scheduledTriggers.push(triggerTime)
+        this.triggerCallback(this,triggerTime,i)
+      }
+    })
+  }
+
+  draw(stage : Stage) {
     super.draw(stage)
-    this.drawPulse(stage)
+    this.drawTrigger(stage)
   }
 
-  drawPulse(stage : Stage) {
+  drawTrigger(stage : Stage) {
     if (this.pulse <= 0)
       return
 
@@ -184,4 +222,4 @@ class BaseModulationPlanet extends BasePlanet {
   }
 }
 
-export { BasePlanet, BaseModulationPlanet, TriggerCallbackHandler }
+export { BasePlanet, BaseTriggerPlanet, BaseModulationPlanet, TriggerCallbackHandler }

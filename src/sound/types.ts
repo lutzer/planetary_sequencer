@@ -28,7 +28,7 @@ class Note {
   }
 }
 
-class Sound {
+class SoundTrigger {
 
   gate = new SoundParam(0.5)
   note = new SoundParam(0)
@@ -75,4 +75,4 @@ class SoundParam {
   }
 }
 
-export { InstrumentTypes, Note, SoundParam, Sound }
+export { InstrumentTypes, Note, SoundParam, SoundTrigger }

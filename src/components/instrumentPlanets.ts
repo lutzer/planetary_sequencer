@@ -1,33 +1,38 @@
-import { InstrumentTypes, SoundParam, Note, Sound } from '../sound/types'
-import { BasePlanet, TriggerCallbackHandler } from './basePlanets'
-import { GatePlanet, BurstPlanet } from './modulationPlanets'
+import { InstrumentTypes, SoundTrigger } from '../sound/types'
+import { BasePlanet, BaseTriggerPlanet } from './basePlanets'
+import { NotePlanet } from './notePlanets'
 import { Stage } from '../engine/stage'
 
 interface NoteTriggerCallbackHandler {
-  (sound : Sound, step : number) : void
+  (sound : SoundTrigger, atTime: number, step : number) : void
 }
 
 class InstrumentPlanet extends BasePlanet {
 
-  noteTriggerCallback : NoteTriggerCallbackHandler
+  soundTriggerCallback : NoteTriggerCallbackHandler
 
-  type : InstrumentTypes
-  channel : number
+  protected type : InstrumentTypes
+  protected channel : number
 
   constructor(
-    {x, y, type, channel = null, scale = 1.0, noteTriggerCallback = () => {}} : 
-    {x:number, y: number, type : InstrumentTypes, channel? : number, scale? : number, noteTriggerCallback? : NoteTriggerCallbackHandler }) {
+    {x, y, type, channel = null, scale = 1.0, soundTriggerCallback = () => {}} : 
+    {x:number, y: number, type : InstrumentTypes, channel? : number, scale? : number, soundTriggerCallback? : NoteTriggerCallbackHandler }) {
       super({x,y,scale}, {size: 0.07, fill: '#eeeeee'})
 
       this.type = type
       this.channel = channel
 
-      this.noteTriggerCallback = noteTriggerCallback
+      this.soundTriggerCallback = soundTriggerCallback
   }
 
-  onChildTriggered(child : BasePlanet, step: number) {
+  addChild(planet : BaseTriggerPlanet) {
+    super.addChild(planet)
+    planet.triggerCallback = (planet, time, step) => this.onChildTriggered(planet, time, step)
+  }
+
+  onChildTriggered(child : BaseTriggerPlanet, atTime: number, step: number) {
     if (child instanceof NotePlanet)
-      this.noteTriggerCallback(child.parameters, step)
+      this.soundTriggerCallback(child.triggerParameters, atTime, step)
   }
 
   drawStepLine(stage : Stage) {
@@ -38,8 +43,8 @@ class InstrumentPlanet extends BasePlanet {
 
     context.beginPath()
     context.lineWidth = 1/stage.maxSide
-    context.moveTo(0, -1 * (size + this.style.margin))
-    context.lineTo(0, -1 * this.style.stepsLineLength)
+    context.moveTo(0, -1 * (size + this.STYLE.margin))
+    context.lineTo(0, -1 * this.STYLE.stepsLineLength)
     context.closePath()
     context.stroke()
   }
@@ -48,51 +53,6 @@ class InstrumentPlanet extends BasePlanet {
     super.draw(stage)
     this.drawStepLine(stage)
   }
-}
-
-class NotePlanet extends BasePlanet {
-
-  parameters = new Sound()
-
-  constructor({ octave, distance, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : { octave: number, distance: number, note: string, phase?: number, gate? : number, fill? : string }) {
-    super({x: 0,y: 0}, {distance, phase, steps: 1, fill})
-
-    this.props.size = 0.08 - octave*0.01
-
-    this.parameters.length.val = 1/distance
-    this.parameters.gate.val = gate
-    this.parameters.note.val = Note.toInt(note)
-    this.parameters.octave.val = octave
-
-  }
-
-  onChildTriggered(child : BasePlanet, step: number) {
-    if (child instanceof GatePlanet) {
-      this.parameters.gate.mod = child.modulationParams.gate[step % child.modulationParams.gate.length]
-    } else if (child instanceof BurstPlanet) {
-      this.parameters.repeats.mod = child.modulationParams.repeats
-    }
-  }
-
-  onTriggered(time: number, step : number) {
-    super.onTriggered(time, step)
-
-    if (this.parameters.repeats.mod > 0) {
-      this.parameters.repeats.mod = 0.0
-    }
-  }
-
-  // burst(repeats : number, currentStep : number) {
-  //   console.log(["burst", this.parameters])
-  //   var count = repeats
-  //   const bpm = 60
-  //   var interval = setInterval(() => {
-  //     this.options.triggerCallback(this, currentStep)
-  //     count--
-  //     if (count-- < 1)
-  //       clearInterval(interval)
-  //   }, this.parameters.length.sum * 60 / bpm * 1000 / repeats)
-  // }
 }
 
 export { NotePlanet, InstrumentPlanet }

@@ -3,7 +3,7 @@ import { Stage } from "./engine/stage"
 import { CanvasElement } from './engine/canvasElement'
 import { InstrumentPlanet, NotePlanet } from './components/instrumentPlanets'
 import { GatePlanet, BurstPlanet } from './components/modulationPlanets'
-import { InstrumentTypes, Note, SoundParam, Sound } from './sound/types'
+import { InstrumentTypes, Note, SoundTrigger } from './sound/types'
 import { scales } from './sound/scales'
 //@ts-ignore
 import random from 'canvas-sketch-util/random'
@@ -25,7 +25,7 @@ function generateSimulationParams(debug = false) : any {
     transpose : 0,
     colors : ['white']
   } : {
-    bpm : random.range(10,60),
+    bpm : random.range(20,60),
     numberOfNotes: random.range(4,20),
     scale : random.pick(scales),
     transpose : random.rangeFloor(12),
@@ -39,14 +39,14 @@ const app = (function() {
   const root = new CanvasElement({ x: stage.width/2, y: stage.height/2, scale: Math.min(stage.width, stage.height)/2})
 
   // create root node
-  var instrument = new InstrumentPlanet({x: 0, y: 0, scale: settings.zoom, type : InstrumentTypes.MIDI, noteTriggerCallback : onNoteTriggered})
+  var instrument = new InstrumentPlanet({x: 0, y: 0, scale: settings.zoom, type : InstrumentTypes.MIDI, soundTriggerCallback : onSoundTriggered})
 
   // create audio output
   const audioOutput = new MidiOutput({ channel: 1 });
-  function onNoteTriggered(sound: Sound, step: number) {
+  function onSoundTriggered(sound: SoundTrigger, atTime: number, step: number) {
     console.debug(['play note', sound.getNote(), sound.getGate()])
     if (audioOutput.isEnabled()) {
-      audioOutput.scheduleNote(sound.getNote(), sound.getGate() * 500)
+      audioOutput.scheduleNote(sound.getNote(), sound.getGate() * 500, atTime)
     }
   }
 
@@ -61,18 +61,27 @@ const app = (function() {
 
     params = generateSimulationParams(true)
 
-    var note = new NotePlanet({
+    var note1 = new NotePlanet({
         note: 'C', 
         octave: 3, 
-        distance: 1/4, 
-        phase : 0,
+        distance: 1/2, 
+        phase : 0.0,
         fill : 'white',
     })
 
-    note.addChild(new GatePlanet({ distance : 1/9, steps : 4, phase: 0.25, gate : [-0.9,-0.5,0.0,1.0]}))
-    note.addChild(new BurstPlanet({ distance: 1/5, repeats : 10 }))
+    var note2 = new NotePlanet({
+      note: 'D', 
+      octave: 3, 
+      distance: 1/2, 
+      phase : 0.25,
+      fill : 'white',
+    })
 
-    instrument.addChild(note) 
+    // note.addChild(new GatePlanet({ distance : 1/9, steps : 4, phase: 0.25, gate : [-0.9,-0.5,0.0,1.0]}))
+    // note.addChild(new BurstPlanet({ distance: 1/5, repeats : 10 }))
+
+    instrument.addChild(note1) 
+    instrument.addChild(note2) 
 
   }
 
@@ -98,7 +107,8 @@ const app = (function() {
     })
   } 
   
-  function loop(time : number = 0.0, dt : number = 0.0) {
+  function loop(time : number = 0.0) {
+      var audioTime = Math.round(audioOutput.time)
       var context = stage.renderer
       context.resetTransform()
       context.lineWidth = 1/stage.width
@@ -109,7 +119,7 @@ const app = (function() {
       context.fillRect(0,0, stage.width, stage.height)
 
       // update all nodes
-      instrument.update(time, params.bpm || 0)
+      instrument.update(audioTime, params.bpm || 0)
 
       // draw lines between planets
       instrument.drawConnections(stage, 0.2)
@@ -117,7 +127,7 @@ const app = (function() {
       //draw everything
       root.render(stage)
 
-      requestAnimationFrame((time) => loop(time / 1000 ));
+      requestAnimationFrame(() => loop(time));
   }
 
   return {
