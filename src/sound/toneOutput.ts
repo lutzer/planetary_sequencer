@@ -1,18 +1,9 @@
+import { OutputDevice } from "./outputs";
+
 const Tone = require('tone')
 
-function enableSound(enable : boolean) {
-if (enable) {
-  Tone.start()
-}
-Tone.Master.mute = !enable
-}
 
-class AudioOutput {
-  play(note : string, gate : number) {}
-  isLoaded() {}
-}
-
-class Sampler extends AudioOutput {
+class SamplerOutput extends OutputDevice {
 
   sampler : any
 
@@ -34,7 +25,7 @@ class Sampler extends AudioOutput {
       "A3" : "A3.[mp3|ogg]",
       "C4" : "C4.[mp3|ogg]",
       "D#4" : "Ds4.[mp3|ogg]",
-      "F#4" : "Fs4.[mp3|ogg]",
+      "F#4" : "Fs4.[mp3|ogg]", 
       "A4" : "A4.[mp3|ogg]",
       "C5" : "C5.[mp3|ogg]",
       "D#5" : "Ds5.[mp3|ogg]",
@@ -53,18 +44,32 @@ class Sampler extends AudioOutput {
       "release" : 1,
       "baseUrl" : "./assets/samples/"
     }).toMaster();
+
+    Tone.Master.mute = true
   }
 
-  play(note : string, gate : number) {
-    this.sampler.triggerAttackRelease(note, gate)
+  async enable(enable : boolean) {
+    if (enable) {
+      Tone.start()
+    }
+    Tone.Master.mute = !enable
+    return Promise.resolve()
   }
 
-  isLoaded() {
-    return this.sampler.loaded;
+  scheduleNote(note : string, duration: number, time: number = null) {
+    this.sampler.triggerAttackRelease(note, duration/1000, time/1000)
+  }
+
+  isEnabled() : boolean {
+    return this.sampler.loaded && !Tone.Master.mute
+  }
+
+  get time() : number {
+    return Tone.context.currentTime * 1000
   }
 }
 
-class Synth extends AudioOutput {
+class SynthOutput extends OutputDevice {
 
   synth : any
   
@@ -77,7 +82,7 @@ class Synth extends AudioOutput {
     },
     envelope: {
       attack : 0.05,
-      release : 0.2,
+      release : 0.1,
       attackCurve : 'exponential' ,
       releaseCurve : 'linear'
     },
@@ -87,16 +92,28 @@ class Synth extends AudioOutput {
       rolloff : -24,
       gain: 0.5
     }
-    }).connect(new Tone.Filter(1000, "lowpass")).toMaster();
+    }).toMaster();
   }
 
-  play(note : string, gate : number) {
-    this.synth.triggerAttackRelease(note,0.1)
+  async enable(enable : boolean) {
+    if (enable) {
+      Tone.start()
+    }
+    Tone.Master.mute = !enable
+    return Promise.resolve()
   }
 
-  isLoaded() {
-    return true;
+  isEnabled() : boolean {
+    return !Tone.Master.mute
+  }
+
+  scheduleNote(note : string, duration: number, time: number = null) {
+    this.synth.triggerAttackRelease(note, duration/1000, time/1000)
+  }
+
+  get time() : number {
+    return Tone.context.currentTime * 1000
   }
 }
 
-export { Sampler, Synth, enableSound }
+export { SamplerOutput, SynthOutput }

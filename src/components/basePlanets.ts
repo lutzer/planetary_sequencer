@@ -129,8 +129,8 @@ interface TriggerCallbackHandler {
 
 class BaseTriggerPlanet extends BasePlanet {
 
-  readonly SCHEDULE_INTERVAL = 50 // in ms
-  readonly SCHEDULE_AHEAD = 125 // in ms
+  readonly SCHEDULE_INTERVAL = 100 // in ms
+  readonly SCHEDULE_AHEAD = 150 // in ms
 
   readonly PULSE_SIZE = 1.3
   readonly PULSE_DURATION = 300

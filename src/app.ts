@@ -7,7 +7,8 @@ import { InstrumentTypes, Note, SoundTrigger } from './sound/types'
 import { scales, rythms } from './sound/audioValues'
 //@ts-ignore
 import random from 'canvas-sketch-util/random'
-import { MidiOutput } from './sound/outputs'
+import { MidiOutput, OutputDevice } from './sound/outputs'
+import { SamplerOutput } from './sound/toneOutput';
 //@ts-ignore 
 import palettes from 'nice-color-palettes'
 
@@ -28,7 +29,7 @@ function generateSimulationParams(debug = false) : any {
     distances : [1,1/2,1/4],
     divisor: 8
   } : {
-    bpm : random.range(20,60),
+    bpm : random.rangeFloor(20,60),
     numberOfNotes: random.range(4,20),
     scale : random.pick(scales),
     transpose : random.rangeFloor(12),
@@ -40,6 +41,8 @@ function generateSimulationParams(debug = false) : any {
 
 const app = (function() {
 
+  var audioOutput : OutputDevice = new SamplerOutput()
+
   const stage = new Stage({ width: settings.width, height: settings.height })
   const root = new CanvasElement({ x: stage.width/2, y: stage.height/2, scale: Math.min(stage.width, stage.height)/2})
 
@@ -47,7 +50,6 @@ const app = (function() {
   var instrument = new InstrumentPlanet({x: 0, y: 0, scale: settings.zoom, type : InstrumentTypes.MIDI, soundTriggerCallback : onSoundTriggered})
 
   // create audio output
-  const audioOutput = new MidiOutput({ channel: 1 });
   function onSoundTriggered(sound: SoundTrigger, atTime: number, step: number) {
     console.debug(['play note', sound.getNote(), sound.getGate()])
     if (audioOutput.isEnabled()) {
@@ -148,6 +150,18 @@ const app = (function() {
     },
     enableSound : (enable : boolean) => {
       audioOutput.enable(enable)
+    },
+    setBpm : (bpm : number) => {
+      params.bpm = bpm
+    },
+    setOutput : (output : string) => {
+      if (output == 'midi')
+        audioOutput = new MidiOutput({ channel : 1})
+      else if (output == 'sampler')
+        audioOutput = new SamplerOutput()
+    },
+    getParams : () => {
+      return params
     }
   }
 })()

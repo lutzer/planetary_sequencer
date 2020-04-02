@@ -21,7 +21,7 @@ class OutputDevice {
   stop() {}
 
   get time() : number {
-    return 0
+    return performance.now()
   }
 
 }
