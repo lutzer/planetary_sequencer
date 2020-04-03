@@ -36,7 +36,7 @@
 
   .muted {
     color: gray
-  }</style></head><body><canvas id="canvas"></canvas><div id="caption"><button id="button-sound" class="muted">Sound</button> <button id="button-randomize">Randomize</button> <label for="points">bpm:</label> <input type="number" id="input-bpm" min="10" max="120"> <label for="select-output">output:</label> <select id="select-output"><option value="sampler">Sampler (Piano)</option><option value="midi">Midi (Channel 1)</option></select></div><script>function adjustLayout() {
+  }</style></head><body><canvas id="canvas"></canvas><div id="caption"><button id="button-sound" class="muted">Sound</button> <button id="button-randomize">Randomize</button> <label for="points">bpm:</label> <input type="number" id="input-bpm" min="10" max="120"> <label for="select-output">output:</label> <select id="select-output"><option value="piano">Sampler (Piano)</option><option value="guitar">Sampler (Guitar)</option><option value="midi">Midi (Channel 1)</option></select></div><script>function adjustLayout() {
         let canvas = document.getElementById('canvas')
         let caption = document.getElementById('caption')
         caption.style.width = canvas.offsetWidth + 'px'

@@ -41,7 +41,7 @@ function generateSimulationParams(debug = false) : any {
 
 const app = (function() {
 
-  var audioOutput : OutputDevice = new SamplerOutput()
+  var audioOutput : OutputDevice = new SamplerOutput({ instrument : 'piano'})
 
   const stage = new Stage({ width: settings.width, height: settings.height })
   const root = new CanvasElement({ x: stage.width/2, y: stage.height/2, scale: Math.min(stage.width, stage.height)/2})
@@ -157,8 +157,10 @@ const app = (function() {
     setOutput : (output : string) => {
       if (output == 'midi')
         audioOutput = new MidiOutput({ channel : 1})
-      else if (output == 'sampler')
-        audioOutput = new SamplerOutput()
+      else if (output == 'piano')
+        audioOutput = new SamplerOutput({ instrument : 'piano'})
+      else if (output == 'guitar')
+        audioOutput = new SamplerOutput({ instrument : 'guitar'})
     },
     getParams : () => {
       return params
