@@ -1,36 +1,46 @@
 import { app } from './app'
+import dat from 'dat.gui';
 
 app.start()
-// app.startTestScene()  
 
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
 
-  var bpmInput = <HTMLInputElement>document.getElementById('input-bpm')
-  
-  var enabled = false
-  var soundbutton = <HTMLInputElement>document.getElementById('button-sound')
-  soundbutton.addEventListener('click', () => {
-    app.enableSound(enabled = !enabled)
-    soundbutton.className = enabled ? '' : 'muted' 
+  app.enableSound(false)
+  app.setOutput('midi')
+
+  class GuiParams {
+    enableOutput = false;
+    bpm = 30;
+    output = 'midi';
+    randomize = function() {
+      this.seed = Math.floor(Math.random() * Math.pow(10,9))
+      app.randomize(this.seed)
+      this.bpm = app.getParams().bpm
+    }
+    seed = 0
+  }
+
+  const params = new GuiParams()
+
+  const gui = new dat.GUI()
+  var folder1 = gui.addFolder('Audio')
+
+  folder1.add(params, 'enableOutput').listen().onChange( (val) => {
+    app.enableSound(val)
+  })
+  folder1.add(params, 'output', ['midi', 'piano', 'guitar']).onChange( (val) => {
+    app.setOutput(val)
+    params.enableOutput = false
   })
 
-  var randomizeButton = <HTMLInputElement>document.getElementById('button-randomize')
-  randomizeButton.addEventListener('click', () => {
-    app.restart()
-    bpmInput.value = app.getParams().bpm
+  var folder2 = gui.addFolder('Settings')
+  folder2.add(params, 'randomize')
+  // f2.add(params, 'seed').listen()
+  folder2.add(params, 'bpm', 10, 120).listen().onChange( (val) => {
+    app.setBpm(val)
   })
 
-  bpmInput.value = app.getParams().bpm
-  bpmInput.addEventListener('change', () => {
-    app.setBpm(Number(bpmInput.value))
-  })
-
-  var selectOutput = <HTMLSelectElement>document.getElementById('select-output')
-  selectOutput.addEventListener('change', () => {
-    app.setOutput(selectOutput.value)
-    app.enableSound(false)
-    enabled = false
-    soundbutton.className = 'muted' 
-  })
+  folder1.open()
+  folder2.open()
 
 })

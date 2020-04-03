@@ -18,10 +18,12 @@
   },
   "homepage": "https://github.com/lutzer/planetary_sequencer#readme",
   "dependencies": {
+    "@types/dat.gui": "^0.7.5",
     "@types/lodash": "^4.14.149",
     "@types/mathjs": "^6.0.4",
     "@types/webmidi": "^2.0.4",
     "canvas-sketch-util": "^1.10.0",
+    "dat.gui": "^0.7.6",
     "lodash": "^4.17.15",
     "mathjs": "^6.6.2",
     "music-scale": "^1.2.0",

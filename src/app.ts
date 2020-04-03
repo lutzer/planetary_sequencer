@@ -18,16 +18,17 @@ const settings = {
   zoom: 0.7
 }
 
-function generateSimulationParams(debug = false) : any {
+function generateSimulationParams(seed : number) : any {
   const rythm = random.pick(rythms)
-  return debug ? {
+  random.setSeed(seed)
+  return seed == 0 ? {
     bpm : 30,
     numberOfNotes: 1,
     scale : [0],
     transpose : 0,
     colors : ['white'],
     distances : [1,1/2,1/4],
-    divisor: 8
+    divisor: 8,
   } : {
     bpm : random.rangeFloor(20,60),
     numberOfNotes: random.range(4,20),
@@ -35,13 +36,13 @@ function generateSimulationParams(debug = false) : any {
     transpose : random.rangeFloor(12),
     colors : random.pick(palettes),
     distances : rythm.distances,
-    divisor : rythm.divisor
+    divisor : rythm.divisor,
   }
 }
 
 const app = (function() {
 
-  var audioOutput : OutputDevice = new SamplerOutput({ instrument : 'piano'})
+  var audioOutput : OutputDevice = new OutputDevice()
 
   const stage = new Stage({ width: settings.width, height: settings.height })
   const root = new CanvasElement({ x: stage.width/2, y: stage.height/2, scale: Math.min(stage.width, stage.height)/2})
@@ -66,7 +67,7 @@ const app = (function() {
   function createTestScene() {
     instrument.clear()
 
-    params = generateSimulationParams(true)
+    params = generateSimulationParams(0)
 
     var note1 = new NotePlanet({
         note: 'C', 
@@ -92,11 +93,11 @@ const app = (function() {
 
   }
 
-  function randomize() {
+  function randomize(seed : number) {
     instrument.clear()
 
     // generate simulation parameters
-    params = generateSimulationParams()
+    params = generateSimulationParams(seed)
 
     // setup simulation
     _.range(params.numberOfNotes).forEach( () => {
@@ -138,15 +139,15 @@ const app = (function() {
 
   return {
     start : () => {
-      randomize()
+      randomize(1)
       loop() 
     },
     startTestScene : () => {
       createTestScene() 
       loop()
     },
-    restart : () => {
-      randomize() 
+    randomize : (seed : number) => {
+      randomize(seed) 
     },
     enableSound : (enable : boolean) => {
       audioOutput.enable(enable)
