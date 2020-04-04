@@ -41,7 +41,7 @@ window.addEventListener("load", () => {
     params.enableOutput = false
   })
 
-  var folder2 = gui.addFolder('Settings')
+  var folder2 = gui.addFolder('Parameters')
   folder2.add(params, 'randomize')
   folder2.add(params, 'bpm', 10, 120, 1).listen().onFinishChange( (val) => {
     app.setBpm(val)

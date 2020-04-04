@@ -7,6 +7,10 @@ function angularSum(angle1 : number, angle2: number ) {
   return ((angle1 + angle2) + (2*Math.PI)) % (Math.PI * 2)
 }
 
+enum DrawingMode {
+  PLAYING, SETUP
+}
+
 class PlanetCanvasElement extends CanvasElement {
 
   readonly STYLE = {
@@ -28,7 +32,7 @@ class PlanetCanvasElement extends CanvasElement {
     Object.assign(this.props, props)
   }
 
-  draw(stage : Stage) {
+  draw(stage : Stage, mode : DrawingMode = DrawingMode.PLAYING) {
     super.draw(stage)
     const context = stage.renderer
     const { fill, stroke, size, opacity } = this.props
@@ -95,7 +99,7 @@ class BasePlanet extends PlanetCanvasElement {
       this.drawDistance = Math.log(1+this.props.distance)/Math.log(2) * this.props.mass
   }
 
-  setBpm(bpm : number) {
+  private updateBpm(bpm : number) {
     const { distance } = this.props
     this.bpm = bpm
     this.orbitalPeriod = distance * 240 / bpm * 1000
@@ -103,10 +107,10 @@ class BasePlanet extends PlanetCanvasElement {
   }
 
   update(time: number, bpm: number) {
-    const { distance, mass } = this.props
+    const { distance } = this.props
     
     if (bpm != this.bpm)
-      this.setBpm(bpm)
+      this.updateBpm(bpm)
 
     // const angularSpeed = this.bpm / 60 * Math.PI/2
     const angle = (this.phaseRad + time * this.orbitalSpeed) % (Math.PI*2) - Math.PI/2
@@ -155,7 +159,7 @@ class BaseTriggerPlanet extends BasePlanet {
 
   update(time : number, bpm : number) {
     super.update(time, bpm)
-    this.scheduleTriggers(time,bpm)
+    this.scheduleTriggers(time)
 
     if (!_.isEmpty(this.scheduledTriggers)) {
       const pulseTime = (time - this.scheduledTriggers[0])
@@ -165,7 +169,7 @@ class BaseTriggerPlanet extends BasePlanet {
     
   }
 
-  scheduleTriggers(time : number, bpm : number) {
+  scheduleTriggers(time : number) {
     const { phase, steps } = this.props
 
     // only check in a defined interval for new triggers

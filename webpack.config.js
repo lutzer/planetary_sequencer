@@ -17,7 +17,8 @@ module.exports = (env, argv) => {
         template: 'src/index.html'
       }),
       new CopyPlugin([
-        { from: 'src/assets', to: 'assets' }
+        { from: 'src/assets', to: 'assets' },
+        { from: 'src/dat.css', to: 'dat.css'}
       ]),
     ],
     output: {
