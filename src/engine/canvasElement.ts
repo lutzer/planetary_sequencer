@@ -5,8 +5,8 @@ import _ from 'lodash'
 
 class CanvasElement {
 
-  position : number[]
-  size : number[]
+  position : [number, number]
+  size : [number, number]
   children : CanvasElement[] = []
   parent: CanvasElement = null
   scale : number = 1

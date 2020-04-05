@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { Stage } from "./engine/stage"
 import { CanvasElement } from './engine/canvasElement'
 import { InstrumentPlanet, NotePlanet } from './components/instrumentPlanets'
-import { GatePlanet, BurstPlanet } from './components/modulationPlanets'
 import { InstrumentTypes, Note, SoundTrigger } from './sound/types'
 import { scales, rythms } from './sound/audioValues'
 //@ts-ignore
@@ -13,23 +12,15 @@ import { SamplerOutput } from './sound/toneOutput';
 import palettes from 'nice-color-palettes'
 
 const settings = {
-  width: 512,
-  height: 512,
+  width: 768,
+  height: 768,
   zoom: 0.7
 }
 
 function generateSimulationParams(seed : number) : any {
   const rythm = random.pick(rythms)
   random.setSeed(seed)
-  return seed == 0 ? {
-    bpm : 30,
-    numberOfNotes: 1,
-    scale : [0],
-    transpose : 0,
-    colors : ['white'],
-    distances : [1,1/2,1/4],
-    divisor: 8,
-  } : {
+  return {
     bpm : random.rangeFloor(20,60),
     numberOfNotes: random.range(4,20),
     scale : random.pick(scales),
@@ -63,35 +54,6 @@ const app = (function() {
 
   // param object
   var params : any = {}
-
-  function createTestScene() {
-    instrument.clear()
-
-    params = generateSimulationParams(0)
-
-    var note1 = new NotePlanet({
-        note: 'C', 
-        octave: 3, 
-        distance: 1/2, 
-        phase : 0.0,
-        fill : 'white',
-    })
-
-    var note2 = new NotePlanet({
-      note: 'D', 
-      octave: 3, 
-      distance: 1/2, 
-      phase : 0.25,
-      fill : 'white',
-    })
-
-    // note.addChild(new GatePlanet({ distance : 1/9, steps : 4, phase: 0.25, gate : [-0.9,-0.5,0.0,1.0]}))
-    // note.addChild(new BurstPlanet({ distance: 1/5, repeats : 10 }))
-
-    instrument.addChild(note1) 
-    instrument.addChild(note2) 
-
-  }
 
   function randomize(seed : number) {
     instrument.clear()
@@ -141,10 +103,6 @@ const app = (function() {
     start : () => {
       randomize(1)
       loop() 
-    },
-    startTestScene : () => {
-      createTestScene() 
-      loop()
     },
     randomize : (seed : number) => {
       randomize(seed) 

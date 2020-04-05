@@ -25,6 +25,8 @@ class PlanetCanvasElement extends CanvasElement {
     opacity : 1.0,
   }
 
+  protected initialPosition : [ number, number ] = [0,0]
+
   constructor(
     {x,y,scale = 1.0} : { x: number, y: number, scale? : number }, props? : object ) {
     super({x,y,scale})
@@ -32,7 +34,7 @@ class PlanetCanvasElement extends CanvasElement {
     Object.assign(this.props, props)
   }
 
-  draw(stage : Stage, mode : DrawingMode = DrawingMode.PLAYING) {
+  draw(stage : Stage) {
     super.draw(stage)
     const context = stage.renderer
     const { fill, stroke, size, opacity } = this.props
@@ -97,6 +99,8 @@ class BasePlanet extends PlanetCanvasElement {
 
       this.phaseRad = this.props.phase * Math.PI * 2
       this.drawDistance = Math.log(1+this.props.distance)/Math.log(2) * this.props.mass
+
+      this.initialPosition = [ this.drawDistance * Math.cos(this.phaseRad), this.drawDistance * Math.sin(this.phaseRad) ]
   }
 
   private updateBpm(bpm : number) {
@@ -115,7 +119,7 @@ class BasePlanet extends PlanetCanvasElement {
     // const angularSpeed = this.bpm / 60 * Math.PI/2
     const angle = (this.phaseRad + time * this.orbitalSpeed) % (Math.PI*2) - Math.PI/2
 
-    // update angle & position
+    // update position
     if (distance > 0) {
       this.position = [ Math.cos(angle) * this.drawDistance, Math.sin(angle) * this.drawDistance ]
     }
