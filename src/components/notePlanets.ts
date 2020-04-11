@@ -1,32 +1,32 @@
-import { BasePlanet, TriggerCallbackHandler, BaseTriggerPlanet } from './basePlanets'
+import { BasePlanet } from './baseElements'
 import { Note, SoundTrigger } from '../sound/types'
-import { GatePlanet, BurstPlanet } from './modulationPlanets'
+import { Orbit } from './orbit';
+import { Stage } from '../engine/stage';
 
-class NotePlanet extends BaseTriggerPlanet {
+class NotePlanet extends BasePlanet {
 
   triggerParameters = new SoundTrigger()
 
-  constructor({ octave, distance, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : { octave: number, distance: number, note: string, phase?: number, gate? : number, fill? : string }) {
-    super({x: 0,y: 0}, {distance, phase, steps: 1, fill})
+  orbit : Orbit = null
 
-    this.props.size = 0.08 - octave*0.01
+  constructor(
+    { octave, note, phase = 0.0, gate = 0.5, fill = '#aaaaaa' } : 
+    { octave: number, note: string, phase?: number, gate? : number, fill? : string }) {
+    super({scale: 0.2, phase, fill})
 
-    this.triggerParameters.length.val = 1/distance
+    this.triggerParameters.length.val = 1
     this.triggerParameters.gate.val = gate
     this.triggerParameters.note.val = Note.toInt(note)
     this.triggerParameters.octave.val = octave
   }
 
-  onChildTriggered(child : BasePlanet, step: number) {
-    if (child instanceof GatePlanet) {
-      this.triggerParameters.gate.mod = child.modulationParams.gate[step % child.modulationParams.gate.length]
-    } else if (child instanceof BurstPlanet) {
-      this.triggerParameters.repeats.mod = child.modulationParams.repeats
-    }
+  update(angle: number, distance: number) {
+    const phaseRad = this.props.phase * Math.PI * 2
+    this.position = [ Math.cos(phaseRad+angle) * distance, Math.sin(phaseRad+angle) * distance ]
   }
 
-  onTriggered(time: number, step : number) {
-    this.triggerCallback(this, time, step)
+  draw(stage : Stage) {
+    super.draw(stage)
   }
 }
 

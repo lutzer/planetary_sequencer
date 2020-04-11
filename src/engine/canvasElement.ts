@@ -48,7 +48,7 @@ class CanvasElement {
     this.children.push(child)
   }
 
-  remove(child : CanvasElement) : CanvasElement {
+  removeChild(child : CanvasElement) : CanvasElement {
     var removed = _.remove(this.children, child)
     return _.isEmpty(removed) ? null : removed[0]
   }

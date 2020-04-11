@@ -8,7 +8,9 @@ class OutputDevice {
 
   constructor() {}
 
-  scheduleNote(note : string, duration: number, time: number = null) {}
+  scheduleNote(note : string, duration: number, time: number = null) {
+    console.debug(['schedule note', note, duration, time])
+  }
   
   isEnabled() : boolean {
     return this.enabled

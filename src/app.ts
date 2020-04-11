@@ -1,25 +1,26 @@
 import _ from 'lodash';
 import { Stage } from "./engine/stage"
 import { CanvasElement } from './engine/canvasElement'
-import { InstrumentPlanet, NotePlanet } from './components/instrumentPlanets'
+import { InstrumentPlanet } from './components/instrumentPlanets'
 import { InstrumentTypes, Note, SoundTrigger } from './sound/types'
 import { scales, rythms } from './sound/audioValues'
 //@ts-ignore
 import random from 'canvas-sketch-util/random'
 import { MidiOutput, OutputDevice } from './sound/outputs'
-import { SamplerOutput } from './sound/toneOutput';
 //@ts-ignore 
 import palettes from 'nice-color-palettes'
+import { Orbit } from './components/orbit';
+import { NotePlanet } from './components/notePlanets';
 
 const settings = {
   width: 768,
   height: 768,
-  zoom: 0.7
+  zoom: 0.1
 }
 
-function generateSimulationParams(seed : number) : any {
+function generateSimulationParams() : any {
+  random.setSeed(0)
   const rythm = random.pick(rythms)
-  random.setSeed(seed)
   return {
     bpm : random.rangeFloor(20,60),
     numberOfNotes: random.range(4,20),
@@ -38,16 +39,15 @@ const app = (function() {
   const stage = new Stage({ width: settings.width, height: settings.height })
   const root = new CanvasElement({ x: stage.width/2, y: stage.height/2, scale: Math.min(stage.width, stage.height)/2})
 
-  // create root node
-  var instrument = new InstrumentPlanet({x: 0, y: 0, scale: settings.zoom, type : InstrumentTypes.MIDI, soundTriggerCallback : onSoundTriggered})
-
-  // create audio output
-  function onSoundTriggered(sound: SoundTrigger, atTime: number, step: number) {
-    console.debug(['play note', sound.getNote(), sound.getGate()])
+   // handler for sound triggers
+   function onSoundTrigger(sound: SoundTrigger, atTime: number, step: number) {
     if (audioOutput.isEnabled()) {
       audioOutput.scheduleNote(sound.getNote(), sound.getGate() * 500, atTime)
     }
   }
+
+  // create root node
+  var instrument = new InstrumentPlanet({scale: settings.zoom, type : InstrumentTypes.MIDI, soundTriggerCallback : onSoundTrigger})
 
   // add instrument to canvas
   root.addChild(instrument)
@@ -55,25 +55,33 @@ const app = (function() {
   // param object
   var params : any = {}
 
-  function randomize(seed : number) {
+  function setup() {
     instrument.clear()
 
+    const orbit1 = instrument.addChild(new Orbit({ distance: 3, steps: 8}))
+    orbit1.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0}))
+    orbit1.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0.3}))
+
+
+    const orbit2 = instrument.addChild(new Orbit({ distance: 5, steps: 16}))
+    orbit2.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0}))
+
     // generate simulation parameters
-    params = generateSimulationParams(seed)
+    // params = generateSimulationParams()
 
     // setup simulation
-    _.range(params.numberOfNotes).forEach( () => {
-      var noteIndex = random.rangeFloor(params.scale.length)
-      var note = (params.scale[noteIndex] + params.transpose) % 12
-      instrument.addChild( new NotePlanet({
-        note: Note.fromInt(note), 
-        octave: random.rangeFloor(2,6), 
-        distance: random.pick(params.distances), 
-        phase : random.rangeFloor(0,params.divisor)/params.divisor,
-        fill : params.colors[noteIndex % params.colors.length],
-        gate: random.range(0.2,2.0)
-      })) 
-    })
+    // _.range(params.numberOfNotes).forEach( () => {
+    //   var noteIndex = random.rangeFloor(params.scale.length)
+    //   var note = (params.scale[noteIndex] + params.transpose) % 12
+    //   instrument.addChild( new NotePlanet({
+    //     note: Note.fromInt(note), 
+    //     octave: random.rangeFloor(2,6), 
+    //     distance: random.pick(params.distances), 
+    //     phase : random.rangeFloor(0,params.divisor)/params.divisor,
+    //     fill : params.colors[noteIndex % params.colors.length],
+    //     gate: random.range(0.2,2.0)
+    //   })) 
+    // })
   } 
   
   function loop(time : number = 0.0) {
@@ -88,10 +96,10 @@ const app = (function() {
       context.fillRect(0,0, stage.width, stage.height)
 
       // update all nodes
-      instrument.update(audioTime, params.bpm || 0)
+      instrument.update(audioTime, params.bpm || 60)
 
       // draw lines between planets
-      instrument.drawConnections(stage, 0.2)
+      // instrument.drawConnections(stage, 0.2)
       
       //draw everything
       root.render(stage)
@@ -101,28 +109,8 @@ const app = (function() {
 
   return {
     start : () => {
-      randomize(1)
+      setup()
       loop() 
-    },
-    randomize : (seed : number) => {
-      randomize(seed) 
-    },
-    enableSound : (enable : boolean) => {
-      audioOutput.enable(enable)
-    },
-    setBpm : (bpm : number) => {
-      params.bpm = bpm
-    },
-    setOutput : (output : string) => {
-      if (output == 'midi')
-        audioOutput = new MidiOutput({ channel : 1})
-      else if (output == 'piano')
-        audioOutput = new SamplerOutput({ instrument : 'piano'})
-      else if (output == 'guitar')
-        audioOutput = new SamplerOutput({ instrument : 'guitar'})
-    },
-    getParams : () => {
-      return params
     }
   }
 })()

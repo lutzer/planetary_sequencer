@@ -1,7 +1,7 @@
 import { InstrumentTypes, SoundTrigger } from '../sound/types'
-import { BasePlanet, BaseTriggerPlanet } from './basePlanets'
-import { NotePlanet } from './notePlanets'
+import { BasePlanet } from './baseElements'
 import { Stage } from '../engine/stage'
+import { Orbit } from './orbit'
 
 interface NoteTriggerCallbackHandler {
   (sound : SoundTrigger, atTime: number, step : number) : void
@@ -15,9 +15,9 @@ class InstrumentPlanet extends BasePlanet {
   protected channel : number
 
   constructor(
-    {x, y, type, channel = null, scale = 1.0, soundTriggerCallback = () => {}} : 
-    {x:number, y: number, type : InstrumentTypes, channel? : number, scale? : number, soundTriggerCallback? : NoteTriggerCallbackHandler }) {
-      super({x,y,scale}, {size: 0.07, fill: '#eeeeee'})
+    {type, channel = null, scale = 1.0, soundTriggerCallback = () => {}} : 
+    {type : InstrumentTypes, channel? : number, scale? : number, soundTriggerCallback? : NoteTriggerCallbackHandler }) {
+      super({scale, fill: '#eeeeee'})
 
       this.type = type
       this.channel = channel
@@ -25,34 +25,24 @@ class InstrumentPlanet extends BasePlanet {
       this.soundTriggerCallback = soundTriggerCallback
   }
 
-  addChild(planet : BaseTriggerPlanet) {
-    super.addChild(planet)
-    planet.triggerCallback = (planet, time, step) => this.onChildTriggered(planet, time, step)
+  addChild(orbit : Orbit) : Orbit {
+    super.addChild(orbit)
+    return orbit
   }
 
-  onChildTriggered(child : BaseTriggerPlanet, atTime: number, step: number) {
-    if (child instanceof NotePlanet)
-      this.soundTriggerCallback(child.triggerParameters, atTime, step)
+  get orbits() : Orbit[] {
+    return <Orbit[]>this.children;
   }
 
-  drawStepLine(stage : Stage) {
-    const { stroke, size } = this.props
-    const context = stage.renderer
-    context.globalAlpha = 0.1
-    context.strokeStyle = stroke
-
-    context.beginPath()
-    context.lineWidth = 1/stage.maxSide
-    context.moveTo(0, -1 * (size + this.STYLE.margin))
-    context.lineTo(0, -1 * this.STYLE.stepsLineLength)
-    context.closePath()
-    context.stroke()
+  update(time: number, bpm: number) {
+    this.orbits.forEach( (orbit : Orbit) => {
+      orbit.update(time, bpm)
+    })
   }
 
   draw(stage : Stage) {
     super.draw(stage)
-    this.drawStepLine(stage)
   }
 }
 
-export { NotePlanet, InstrumentPlanet }
+export { InstrumentPlanet }
