@@ -1,5 +1,5 @@
 import { app } from './app'
-import dat from 'dat.gui';
+import dat, { GUIController } from 'dat.gui';
 
 app.start()
 
@@ -8,19 +8,23 @@ window.addEventListener("load", () => {
   app.enableSound(false)
   app.setOutput('midi')
   
-  function randomizeApp() : number {
-    const seed = Math.floor(Math.random() * Math.pow(10,5))
-    app.randomize(seed)
-    return seed
-  }
+  // function randomizeApp() : number {
+  //   const seed = 
+  //   // app.randomize(seed)
+  //   return seed
+  // }
+
+  var seedControl : GUIController = null
 
   class GuiParams {
     enableOutput = false;
     bpm = 30;
     output = 'midi';
     randomize = function() {
-      this.seed = randomizeApp()
+      this.seed = Math.floor(Math.random() * Math.pow(10,5))
       this.bpm = app.getParams().bpm
+      seedControl.updateDisplay()
+      app.randomize(this.seed)
     }
     seed = 0
   }
@@ -43,6 +47,9 @@ window.addEventListener("load", () => {
 
   var folder2 = gui.addFolder('Parameters')
   folder2.add(params, 'randomize')
+  seedControl = folder2.add(params, 'seed').onFinishChange( (val) => {
+    app.randomize(val)
+  })
   folder2.add(params, 'bpm', 10, 120, 1).listen().onFinishChange( (val) => {
     app.setBpm(val)
   })
@@ -50,6 +57,6 @@ window.addEventListener("load", () => {
   folder1.open()
   folder2.open()
 
-  randomizeApp()
+  params.randomize()
 
 })
