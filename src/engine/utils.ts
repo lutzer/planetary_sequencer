@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { Matrix, reshape } from 'mathjs'
+import { Matrix } from 'mathjs'
 
 const toDOMMatrix = (mat : Matrix) : DOMMatrixInit => {
   // const matData = mat.valueOff()
@@ -10,4 +10,9 @@ const toDOMMatrix = (mat : Matrix) : DOMMatrixInit => {
   return domMatrix;
 }
 
-export { toDOMMatrix }
+const euclidianDistance = (p1 : [number,number], p2 : [number,number]) : number => {
+  const diff = [ p2[0] - p1[0], p2[1] - p1[1]]
+  return Math.sqrt(diff[0]*diff[0]+diff[1]*diff[1])
+}
+
+export { toDOMMatrix, euclidianDistance }

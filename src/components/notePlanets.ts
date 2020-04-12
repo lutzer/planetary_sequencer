@@ -10,9 +10,9 @@ class NotePlanet extends BasePlanet {
   orbit : Orbit = null
 
   constructor(
-    { octave, note, phase = 0.0, gate = 0.5, fill = '#aaaaaa' } : 
+    { octave, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : 
     { octave: number, note: string, phase?: number, gate? : number, fill? : string }) {
-    super({scale: 0.2, phase, fill})
+    super({scale: 1.0, phase, fill, size : 0.3})
 
     this.triggerParameters.length.val = 1
     this.triggerParameters.gate.val = gate

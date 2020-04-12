@@ -2,10 +2,12 @@ import { NotePlanet } from "./notePlanets";
 import _ from "lodash";
 import { Stage } from "../engine/stage";
 import { BaseCanvasElement } from "./baseElements";
+import { euclidianDistance } from "../engine/utils";
 
 class Orbit extends BaseCanvasElement {
 
-  props = {
+  props : any = {
+    ...this.props,
     distance: 0,
     steps: 0,
     stroke: 'black',
@@ -44,11 +46,18 @@ class Orbit extends BaseCanvasElement {
     // todo
   }
 
+  isPointInside(pos : [number, number]) : boolean {
+    const { size, distance } =  this.props
+    const dist = euclidianDistance(pos, this.position)
+    return dist > (distance - 0.4) && dist < (distance + 0.4)
+  }
+
   draw(stage : Stage) {
     super.draw(stage)
-    const { stroke, distance, opacity } = this.props
+    const { stroke, strokeWidth, distance, opacity } = this.props
     const context = stage.renderer
-
+    
+    context.lineWidth = strokeWidth*this.scale
     context.globalAlpha = opacity
     context.strokeStyle = stroke
     context.beginPath()

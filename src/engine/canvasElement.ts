@@ -6,7 +6,6 @@ import _ from 'lodash'
 class CanvasElement {
 
   position : [number, number]
-  size : [number, number]
   children : CanvasElement[] = []
   parent: CanvasElement = null
   scale : number = 1
@@ -25,8 +24,7 @@ class CanvasElement {
     if (!this.parent)
       return transform
     else
-      return multiply( this.parent.transformMatrix, transform)
-      
+      return multiply( this.parent.transformMatrix, transform)   
   }
 
   get x() : number {

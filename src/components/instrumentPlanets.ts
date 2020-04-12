@@ -7,6 +7,10 @@ interface NoteTriggerCallbackHandler {
   (sound : SoundTrigger, atTime: number, step : number) : void
 }
 
+enum InteractionModes {
+  PLAYING, SETUP
+}
+
 class InstrumentPlanet extends BasePlanet {
 
   soundTriggerCallback : NoteTriggerCallbackHandler
@@ -14,15 +18,27 @@ class InstrumentPlanet extends BasePlanet {
   protected type : InstrumentTypes
   protected channel : number
 
+  private interactiveMode : InteractionModes
+
   constructor(
     {type, channel = null, scale = 1.0, soundTriggerCallback = () => {}} : 
     {type : InstrumentTypes, channel? : number, scale? : number, soundTriggerCallback? : NoteTriggerCallbackHandler }) {
-      super({scale, fill: '#eeeeee'})
+      super({scale})
 
       this.type = type
       this.channel = channel
 
       this.soundTriggerCallback = soundTriggerCallback
+      this.setMode(InteractionModes.PLAYING)
+  }
+
+  setMode(mode : InteractionModes) {
+    this.interactiveMode = mode
+    this.propagateEvents = mode == InteractionModes.SETUP
+  }
+
+  onEvent(event : string) {
+    this.setMode((this.interactiveMode +1 )%2)
   }
 
   addChild(orbit : Orbit) : Orbit {
@@ -41,6 +57,10 @@ class InstrumentPlanet extends BasePlanet {
   }
 
   draw(stage : Stage) {
+    if (this.interactiveMode == InteractionModes.PLAYING)
+      this.props.fill = '#eeeeee'
+    else
+      this.props.fill = '#000000'
     super.draw(stage)
   }
 }
