@@ -67,6 +67,21 @@ class InstrumentPlanet extends BasePlanet {
     else
       this.props.fill = '#000000'
     super.draw(stage)
+    this.drawStepLine(stage)
+  }
+
+  drawStepLine(stage : Stage) {
+    const { stroke, size, strokeWidth } = this.props
+    const context = stage.renderer
+    context.globalAlpha = 0.05
+    context.strokeStyle = stroke
+    context.lineWidth = strokeWidth * this.scale
+
+    context.beginPath()
+    context.moveTo(0.12,0)
+    context.lineTo(1,0)
+    context.closePath()
+    context.stroke()
   }
 }
 

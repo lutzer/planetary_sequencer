@@ -83,7 +83,7 @@ class Orbit extends BaseCanvasElement {
     const { stroke, opacity, strokeWidth } = this.props
     const context = stage.renderer
 
-    context.globalAlpha = 0.1
+    context.globalAlpha = 0.2
 
     this.children.forEach( (child : NotePlanet) => {
       context.beginPath()
@@ -128,7 +128,6 @@ class Orbit extends BaseCanvasElement {
       context.fill()
       context.stroke()
     })
-
   }
 }
 

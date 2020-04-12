@@ -28,6 +28,7 @@ const app = (function() {
     x: stage.width/2, 
     y: stage.height/2, 
     scale: Math.min(stage.width, stage.height)/2,
+    rotation : -Math.PI/2,
     handleEventTypes : [] //ignore all events
   })
 
@@ -61,7 +62,7 @@ const app = (function() {
 
     const orbit1 = instrument.addChild(new Orbit({ distance: 3, steps: 16, snap: true}))
     orbit1.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0}))
-    orbit1.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0.3}))
+    orbit1.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0.25}))
 
     const orbit2 = instrument.addChild(new Orbit({ distance: 5, steps: 16, snap: false}))
     orbit2.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0}))

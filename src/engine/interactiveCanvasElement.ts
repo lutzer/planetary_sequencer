@@ -13,9 +13,9 @@ class InteractiveCanvasElement extends CanvasElement {
   selected : boolean = false
 
   constructor(
-    {x, y, scale = 1.0, propagateEvents = true, handleEventTypes = ['click'] } : 
-    {x : number, y : number, scale?: number, propagateEvents? : boolean, handleEventTypes? : string[]}) {
-    super({x,y,scale})
+    {x, y, scale = 1.0, rotation = 0, propagateEvents = true, handleEventTypes = ['click'] } : 
+    {x : number, y : number, scale?: number, rotation? : number, propagateEvents? : boolean, handleEventTypes? : string[]}) {
+    super({x,y,scale,rotation})
 
     this.propagateEvents = propagateEvents
     this.handleEventTypes = handleEventTypes

@@ -9,18 +9,28 @@ class CanvasElement {
   children : CanvasElement[] = []
   parent: CanvasElement = null
   scale : number = 1
+  rotation : number = 0
 
-  constructor({x, y, scale = 1.0} : {x : number, y : number, scale?: number}) {
+  constructor({x, y, scale = 1.0, rotation = 0} : {x : number, y : number, scale?: number, rotation? : number}) {
     this.position = [x,y]
     this.scale = scale
+    this.rotation = rotation
   }
 
   get transformMatrix() : Matrix {
-    const transform = matrix([
+    var transform = matrix([
       [ this.scale, 0, this.position[0] ],
       [ 0, this.scale, this.position[1] ],
       [ 0, 0, 1 ]
     ])
+    if (this.rotation != 0) {
+      const rotation =  matrix([
+        [ Math.cos(this.rotation), -Math.sin(this.rotation), 0 ],
+        [ Math.sin(this.rotation), Math.cos(this.rotation), 0 ],
+        [ 0, 0, 1 ]
+      ])
+      transform = multiply( transform, rotation)
+    }
     if (!this.parent)
       return transform
     else
