@@ -17,15 +17,6 @@ class BaseCanvasElement extends InteractiveCanvasElement {
     super({x,y,scale})
     Object.assign(this.props, props)
   }
-
-  isPointInside(pos : [number, number]) : boolean {
-    const { size } =  this.props
-    return euclidianDistance(pos, this.position) < size
-  }
-
-  onEvent(event : string) {
-    console.log(['event',event])
-  }
 }
 
 class BasePlanet extends BaseCanvasElement {
@@ -38,6 +29,15 @@ class BasePlanet extends BaseCanvasElement {
   constructor({ scale = 1.0, size = 1.0, ...props} : any) {
       super({x: 0,y: 0, scale: scale, ...props})
       Object.assign(this.props, props, {size})
+  }
+
+  get diameter() : number {
+    return this.props.size
+  }
+
+  isPointInside(pos : [number, number]) : boolean {
+    const { size } =  this.props
+    return Math.sqrt(pos[0]*pos[0]+pos[1]*pos[1]) < size
   }
 
   draw(stage : Stage) {

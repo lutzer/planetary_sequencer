@@ -1,5 +1,5 @@
 import { Stage } from './stage'
-import { matrix, multiply, Matrix } from 'mathjs'
+import { matrix, multiply, Matrix, inv } from 'mathjs'
 import { toDOMMatrix } from './utils'
 import _ from 'lodash'
 
