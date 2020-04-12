@@ -86,9 +86,6 @@ const app = (function() {
 
       // update all nodes
       instrument.update(time, params.bpm || 0)
-
-      // draw lines between planets
-      // instrument.drawConnections(stage, 0.2)
       
       //draw everything
       root.render(stage)

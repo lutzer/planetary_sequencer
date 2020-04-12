@@ -83,7 +83,7 @@ class Orbit extends BaseCanvasElement {
     const { stroke, opacity, strokeWidth } = this.props
     const context = stage.renderer
 
-    context.globalAlpha = 0.2
+    context.globalAlpha = 0.4
 
     this.children.forEach( (child : NotePlanet) => {
       context.beginPath()
@@ -99,9 +99,9 @@ class Orbit extends BaseCanvasElement {
     const { distance } = this.props
 
     const offset = 0.2
-    const p1 = [ Math.cos(this.angle) * (distance - offset), Math.sin(this.angle) * (distance - offset) ]
-    const p2 = [ Math.cos(this.angle) * (distance + offset), Math.sin(this.angle) * (distance + offset) ]
-    const p3 = [ Math.cos(this.angle + offset/distance) * (distance), Math.sin(this.angle + offset/distance) * (distance) ]
+    const p1 = [ Math.cos(-this.angle) * (distance - offset), Math.sin(-this.angle) * (distance - offset) ]
+    const p2 = [ Math.cos(-this.angle) * (distance + offset), Math.sin(-this.angle) * (distance + offset) ]
+    const p3 = [ Math.cos(-this.angle - offset/distance) * (distance), Math.sin(-this.angle - offset/distance) * (distance) ]
 
     context.fillStyle = 'white'
     context.beginPath()
