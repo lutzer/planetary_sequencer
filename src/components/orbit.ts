@@ -1,11 +1,11 @@
 import _ from "lodash";
 import { Stage } from "../engine/stage";
 import { BaseCanvasElement } from "./baseElements";
-import { euclidianDistance, snapTo } from "../engine/utils";
+import { snapTo } from "../engine/utils";
 import { InstrumentPlanet, InstrumentMode } from "./instrumentPlanets";
 import { NotePlanet } from "./notePlanets";
-import { Note } from "../sound/types";
 import { CanvasMouseEvent } from "../engine/interactiveCanvasElement";
+import { TriggerScheduler } from "./triggerScheduler";
 
 class Orbit extends BaseCanvasElement {
 
@@ -19,13 +19,18 @@ class Orbit extends BaseCanvasElement {
     snap : true
   }
 
-  angle : number = 0;
+  angle : number = 0
+
+  scheduler : TriggerScheduler = null
 
   constructor({speed, distance = 0, steps, snap = true} : { speed : number, steps : number, distance?: number, snap? : boolean}) {
     super({x:0, y:0, scale:1})
     Object.assign(this.props, {distance, steps, snap, speed})
 
     this.handleEventTypes = ['mousedown']
+    this.scheduler = new TriggerScheduler({ interval: 100, triggerCallback : (planet, time) => {
+      planet.triggerPulse(time)
+    }})
   }
 
   addChild(planet : NotePlanet) {
@@ -50,10 +55,10 @@ class Orbit extends BaseCanvasElement {
     this.angle = (time * orbitalSpeed) % (Math.PI*2)
 
     this.planets.forEach( (planet) => {
-      planet.update(this.instrument.getMode() == InstrumentMode.PLAYING ? this.angle : 0, distance)
+      planet.update(time, this.instrument.getMode() == InstrumentMode.PLAYING ? this.angle : 0, distance)
     })
 
-    this.checkTriggers()
+    this.scheduler.checkTriggers(this.planets, time, orbitalPeriod)
   }
 
   isPointInside(pos : [number, number]) : boolean {
@@ -70,10 +75,6 @@ class Orbit extends BaseCanvasElement {
       return true
     }
     return false
-  }
-
-  checkTriggers() {
-    // todo
   }
 
   draw(stage : Stage) {

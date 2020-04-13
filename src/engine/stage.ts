@@ -2,6 +2,8 @@ class Stage {
   canvas : HTMLCanvasElement
   aspectRatio : number
 
+  scale : number = 1
+
   constructor({id = 'canvas', width = 512, height = 512}) {
     this.canvas = <HTMLCanvasElement>document.getElementById(id)
     this.canvas.width = width
@@ -36,6 +38,8 @@ class Stage {
     var scale = Math.min(window.innerWidth*0.9 / this.width, window.innerHeight*0.9 / this.height)  
     this.canvas.style.width = (scale < 1.0 ? this.width * scale : this.width) + 'px'
     this.canvas.style.height = (scale < 1.0 ? this.height * scale * this.aspectRatio : this.height) + 'px'
+
+    this.scale = this.width / this.canvas.clientWidth 
   }
 
   

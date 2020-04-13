@@ -1,4 +1,4 @@
-import { BasePlanet } from './baseElements'
+import { BasePlanet, PlanetPulse } from './baseElements'
 import { Note, SoundTrigger } from '../sound/types'
 import { Orbit } from './orbit';
 import { Stage } from '../engine/stage';
@@ -10,10 +10,12 @@ class NotePlanet extends BasePlanet {
   note = new SoundTrigger()
   currentAngle : number = 0
 
+  pulse : PlanetPulse = null
+
   constructor(
     { octave, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : 
     { octave: number, note: string, phase?: number, gate? : number, fill? : string }) {
-    super({scale: 1.0, phase, fill, size : 0.3})
+    super({scale: 1.0, phase, fill, size : 0.2 + octave * 0.05})
 
     this.note.length.val = 1
     this.note.gate.val = gate
@@ -21,12 +23,16 @@ class NotePlanet extends BasePlanet {
     this.note.octave.val = octave
 
     this.setSelected(false)
+
+    this.pulse = new PlanetPulse(this)
   }
 
-  update(angle: number, distance: number) {
+  update(time : number, angle: number, distance: number) {
     const phaseRad = this.props.phase * Math.PI * 2
     this.currentAngle = phaseRad+angle
     this.position = [ Math.cos(this.currentAngle) * distance, Math.sin(this.currentAngle) * distance ]
+
+    this.pulse.update(time)
   }
 
   draw(stage : Stage) {
@@ -35,6 +41,7 @@ class NotePlanet extends BasePlanet {
     else
       this.props.fill = '#eeeeee'
     super.draw(stage)
+    this.pulse.draw(stage)
   }
 
   get orbit() : Orbit {
@@ -42,7 +49,7 @@ class NotePlanet extends BasePlanet {
   }
 
   setSelected(select : boolean) {
-    this.selected = select
+    super.setSelected(select)
     if (select)
       this.handleEventTypes = ['mouseup','mousemove']
     else
@@ -66,6 +73,10 @@ class NotePlanet extends BasePlanet {
       return true
     }
     return false
+  }
+
+  triggerPulse(atTime: number) {
+    this.pulse.trigger(atTime)
   }
 }
 

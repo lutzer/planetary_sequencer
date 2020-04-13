@@ -5,7 +5,7 @@ import { euclidianDistance } from '../engine/utils'
 
 class BaseCanvasElement extends InteractiveCanvasElement {
 
-  protected props : any = {
+  props : any = {
     size : 1.0, 
     fill : 'white',
     stroke : 'black',
@@ -13,17 +13,21 @@ class BaseCanvasElement extends InteractiveCanvasElement {
     opacity : 1.0,
   }
 
-  selected : boolean = false
+  protected selected : boolean = false
 
   constructor({x, y, scale = 1.0, ...props} : any ) {
     super({x,y,scale})
     Object.assign(this.props, props)
   }
+
+  setSelected(select : boolean) {
+    this.selected = select
+  }
 }
 
 class BasePlanet extends BaseCanvasElement {
 
-  protected props : any = {
+  props : any = {
     ...this.props,
     phase: 0
   }
@@ -60,4 +64,46 @@ class BasePlanet extends BaseCanvasElement {
   }
 }
 
-export { BasePlanet, BaseCanvasElement }
+class PlanetPulse {
+
+  readonly PULSE_SIZE = 1.3
+  readonly PULSE_DURATION = 300
+
+  pulse = 0.0
+  planet : BasePlanet = null
+
+  pulseAtTime = 0.0
+
+  constructor(planet : BasePlanet, duration : number = 100) {
+    this.planet = planet
+  }
+
+  trigger(atTime: number) {
+    this.pulseAtTime = atTime
+  }
+
+  update(time: number) {
+    if (this.pulseAtTime > 0) {
+      const pulseTime = (time - this.pulseAtTime)
+      this.pulse = pulseTime > 0 && pulseTime < this.PULSE_DURATION ? (this.PULSE_DURATION-pulseTime) / this.PULSE_DURATION : 0
+    } else
+      this.pulse = 0.0
+  }
+
+  draw(stage : Stage) {
+    if (this.pulse <= 0)
+      return
+
+    const { size, stroke } = this.planet.props
+    const context = stage.renderer
+
+    context.globalAlpha = this.pulse
+    context.strokeStyle = stroke
+    context.beginPath()
+    context.arc(this.planet.x, this.planet.y, (1+this.PULSE_SIZE - this.pulse) * size * this.planet.scale, 0, 2*Math.PI);
+    context.closePath()
+    context.stroke()
+  }
+}
+
+export { BasePlanet, BaseCanvasElement, PlanetPulse }

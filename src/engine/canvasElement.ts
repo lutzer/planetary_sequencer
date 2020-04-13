@@ -50,7 +50,6 @@ class CanvasElement extends CanvasGroup {
   set x(val: number) {
     this.position[0] = val
   }
-
   get y() : number {
     return this.position[1]
   }
