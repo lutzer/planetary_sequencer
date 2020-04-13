@@ -4,7 +4,7 @@ import { BaseCanvasElement } from "./baseElements";
 import { snapTo } from "../engine/utils";
 import { InstrumentPlanet, InstrumentMode } from "./instrumentPlanets";
 import { NotePlanet } from "./notePlanets";
-import { CanvasMouseEvent } from "../engine/interactiveCanvasElement";
+import { CanvasMouseEvent, CanvasMouseButton } from "../engine/mouseEvents";
 import { TriggerScheduler } from "./triggerScheduler";
 
 class Orbit extends BaseCanvasElement {
@@ -27,7 +27,7 @@ class Orbit extends BaseCanvasElement {
     super({x:0, y:0, scale:1})
     Object.assign(this.props, {distance, steps, snap, speed})
 
-    this.handleEventTypes = ['mousedown']
+    this.handleEventTypes = ['click']
     this.scheduler = new TriggerScheduler({ interval: 100, triggerCallback : (planet, time) => {
       planet.triggerPulse(time)
     }})
@@ -48,7 +48,6 @@ class Orbit extends BaseCanvasElement {
   update(time: number, bpm: number) {
     const { distance, speed } = this.props
 
-    
     const orbitalPeriod = speed * 240 / bpm * 1000
     const orbitalSpeed = Math.PI * 2 / orbitalPeriod
 
@@ -69,9 +68,11 @@ class Orbit extends BaseCanvasElement {
 
   onMouseEvent(event : CanvasMouseEvent) : boolean {
     const { snap, steps } = this.props
-    if (event.type == 'mousedown' && this.isPointInside(event.pos)) {
-      const phase = Math.atan2(event.pos[1]+this.y, event.pos[0]+this.x) / Math.PI / 2
-      this.addChild(new NotePlanet({ octave: 5, note: 'C', phase: snap ? snapTo(phase, steps) : phase }))
+    if (event.type == 'click' && this.isPointInside(event.pos)) {
+      if (event.button == CanvasMouseButton.LEFT ) {
+        const phase = Math.atan2(event.pos[1]+this.y, event.pos[0]+this.x) / Math.PI / 2
+        this.addChild(new NotePlanet({ octave: 5, note: 'C', phase: snap ? snapTo(phase, steps) : phase }))
+      }
       return true
     }
     return false

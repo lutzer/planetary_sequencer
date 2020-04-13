@@ -3,7 +3,7 @@ import { Note, SoundTrigger } from '../sound/types'
 import { Orbit } from './orbit';
 import { Stage } from '../engine/stage';
 import { euclidianDistance, snapTo } from '../engine/utils';
-import { CanvasMouseEvent } from '../engine/interactiveCanvasElement';
+import { CanvasMouseEvent, CanvasMouseButton } from '../engine/mouseEvents';
 
 class NotePlanet extends BasePlanet {
 
@@ -51,19 +51,22 @@ class NotePlanet extends BasePlanet {
   setSelected(select : boolean) {
     super.setSelected(select)
     if (select)
-      this.handleEventTypes = ['mouseup','mousemove']
+      this.handleEventTypes = ['mouseup','drag']
     else
       this.handleEventTypes = ['mousedown']
   }
 
   onMouseEvent(event: CanvasMouseEvent) : boolean {
     if (event.type == 'mousedown' && this.isPointInside(event.pos)) {
-      this.setSelected(true)
+      if (event.button == CanvasMouseButton.LEFT)
+        this.setSelected(true)
+      else if (event.button == CanvasMouseButton.RIGHT)
+        this.orbit.removeChild(this)
       return true
     } else if (this.selected) {
       if (event.type == 'mouseup') {
         this.setSelected(false)
-      } else if (event.type == 'mousemove') {
+      } else if (event.type == 'drag') {
         const angle = Math.atan2(event.pos[1]+this.y,event.pos[0]+this.x)
         if (this.orbit.props.snap)
           this.props.phase = snapTo(angle / (Math.PI*2), this.orbit.props.steps)

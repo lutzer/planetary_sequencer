@@ -3,7 +3,7 @@ import { BasePlanet } from './baseElements'
 import { Stage } from '../engine/stage'
 import { Orbit } from './orbit'
 import _ from 'lodash'
-import { CanvasMouseEvent } from '../engine/interactiveCanvasElement'
+import { CanvasMouseEvent, CanvasMouseButton } from '../engine/mouseEvents'
 
 interface NoteTriggerCallbackHandler {
   (sound : SoundTrigger, atTime: number, step : number) : void
@@ -32,12 +32,13 @@ class InstrumentPlanet extends BasePlanet {
 
       this.handleEventTypes = ['click']
       this.soundTriggerCallback = soundTriggerCallback
-      this.setMode(InstrumentMode.PLAYING)
+      this.setSelected(false)
   }
 
-  setMode(mode : InstrumentMode) {
-    this.mode = mode
-    this.propagateEvents = (mode == InstrumentMode.SETUP)
+  setSelected(select : boolean) {
+    super.setSelected(select)
+    this.mode = select ? InstrumentMode.SETUP : InstrumentMode.PLAYING
+    this.propagateEvents = select
   }
 
   getMode() : InstrumentMode {
@@ -46,7 +47,8 @@ class InstrumentPlanet extends BasePlanet {
 
   onMouseEvent(event : CanvasMouseEvent) {
     if (event.type == 'click' && this.isPointInside(event.pos)) {
-      this.setMode((this.mode+1)%2)
+      if (event.button == CanvasMouseButton.LEFT)
+        this.setSelected(!this.selected)
       return true
     }
     return false

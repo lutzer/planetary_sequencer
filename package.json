@@ -28,6 +28,8 @@
     "mathjs": "^6.6.2",
     "music-scale": "^1.2.0",
     "nice-color-palettes": "^3.0.0",
+    "rxjs": "^6.5.5",
+    "rxjs-compat": "^6.5.5",
     "tone": "^13.8.25",
     "webmidi": "^2.5.1"
   },

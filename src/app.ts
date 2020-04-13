@@ -5,12 +5,13 @@ import { InstrumentTypes, Note, SoundTrigger } from './sound/types'
 import { scales, rythms } from './sound/audioValues'
 //@ts-ignore
 import random from 'canvas-sketch-util/random'
-import { MidiOutput, OutputDevice } from './sound/outputs'
+import { OutputDevice } from './sound/outputs'
 //@ts-ignore 
 import palettes from 'nice-color-palettes'
 import { Orbit } from './components/orbit';
 import { NotePlanet } from './components/notePlanets';
-import { InteractiveCanvasElement, CanvasMouseEventTypes } from './engine/interactiveCanvasElement';
+import { InteractiveCanvasElement } from './engine/interactiveCanvasElement';
+import { CanvasMouseEvent } from './engine/mouseEvents';
 
 const settings = {
   width: 512,
@@ -37,13 +38,8 @@ const app = (function() {
     handleEventTypes : [] //ignore all events
   })
 
-  const eventStrings : CanvasMouseEventTypes[] = ['click','mousedown','mouseup','mousemove']
-  eventStrings.forEach( (type) => {
-    stage.canvas.addEventListener(type, (event : MouseEvent) => {
-      const x = event.offsetX * stage.scale
-      const y = event.offsetY * stage.scale
-      root.handleMouseEvent(type,[x, y])
-    })
+  stage.onMouseEvent((event : CanvasMouseEvent) => {
+    root.handleMouseEvent(event)
   })
 
   // handler for sound triggers

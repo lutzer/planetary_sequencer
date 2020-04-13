@@ -1,8 +1,12 @@
+import { CanvasMouseHandler, CanvasMouse } from "./mouseEvents"
+
 class Stage {
   canvas : HTMLCanvasElement
   aspectRatio : number
 
   scale : number = 1
+
+  private mouseHandler : CanvasMouse
 
   constructor({id = 'canvas', width = 512, height = 512}) {
     this.canvas = <HTMLCanvasElement>document.getElementById(id)
@@ -16,6 +20,17 @@ class Stage {
     })
 
     this.adjustSize()
+
+    this.canvas.addEventListener('contextmenu', (event) => {
+      event.preventDefault()
+      return false
+    })
+
+    this.mouseHandler = new CanvasMouse(this)
+  }
+
+  onMouseEvent(listener: CanvasMouseHandler) {
+    this.mouseHandler.listener = listener
   }
 
   get renderer() : CanvasRenderingContext2D {
