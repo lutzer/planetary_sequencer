@@ -13,6 +13,8 @@ class BaseCanvasElement extends InteractiveCanvasElement {
     opacity : 1.0,
   }
 
+  selected : boolean = false
+
   constructor({x, y, scale = 1.0, ...props} : any ) {
     super({x,y,scale})
     Object.assign(this.props, props)
@@ -37,7 +39,8 @@ class BasePlanet extends BaseCanvasElement {
 
   isPointInside(pos : [number, number]) : boolean {
     const { size } =  this.props
-    return Math.sqrt(pos[0]*pos[0]+pos[1]*pos[1]) < size
+    const dist = Math.sqrt(pos[0]*pos[0]+pos[1]*pos[1])
+    return dist < size
   }
 
   draw(stage : Stage) {

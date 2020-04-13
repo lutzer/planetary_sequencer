@@ -2,8 +2,9 @@ import { Stage } from './stage'
 import { matrix, multiply, Matrix, inv } from 'mathjs'
 import { toDOMMatrix } from './utils'
 import _ from 'lodash'
+import { CanvasGroup } from './canvasGroup'
 
-class CanvasElement {
+class CanvasElement extends CanvasGroup {
 
   position : [number, number]
   children : CanvasElement[] = []
@@ -12,9 +13,15 @@ class CanvasElement {
   rotation : number = 0
 
   constructor({x, y, scale = 1.0, rotation = 0} : {x : number, y : number, scale?: number, rotation? : number}) {
+    super()
     this.position = [x,y]
     this.scale = scale
     this.rotation = rotation
+  }
+
+  addChild(child : CanvasElement) {
+    child.parent = this
+    super.addChild(child)
   }
 
   get transformMatrix() : Matrix {
@@ -49,20 +56,6 @@ class CanvasElement {
   }
   set y(val: number) {
     this.position[1] = val
-  }
-
-  addChild(child : CanvasElement) {
-    child.parent = this
-    this.children.push(child)
-  }
-
-  removeChild(child : CanvasElement) : CanvasElement {
-    var removed = _.remove(this.children, child)
-    return _.isEmpty(removed) ? null : removed[0]
-  }
-
-  clear() {
-    this.children = []
   }
 
   render(stage: Stage) {

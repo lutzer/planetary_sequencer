@@ -15,4 +15,8 @@ const euclidianDistance = (p1 : [number,number], p2 : [number,number]) : number 
   return Math.sqrt(diff[0]*diff[0]+diff[1]*diff[1])
 }
 
-export { toDOMMatrix, euclidianDistance }
+const snapTo = (value : number, steps : number) : number =>  {
+  return Math.round(value * steps) / steps
+}
+
+export { toDOMMatrix, euclidianDistance, snapTo }

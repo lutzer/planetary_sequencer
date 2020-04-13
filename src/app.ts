@@ -10,7 +10,7 @@ import { MidiOutput, OutputDevice } from './sound/outputs'
 import palettes from 'nice-color-palettes'
 import { Orbit } from './components/orbit';
 import { NotePlanet } from './components/notePlanets';
-import { InteractiveCanvasElement } from './engine/interactiveCanvasElement';
+import { InteractiveCanvasElement, CanvasMouseEventTypes } from './engine/interactiveCanvasElement';
 
 const settings = {
   width: 768,
@@ -32,10 +32,12 @@ const app = (function() {
     handleEventTypes : [] //ignore all events
   })
 
-  const evenStrings = ['click','mousedown','mouseup','mousemove']
-  evenStrings.forEach( (val) => {
-    stage.canvas.addEventListener(val, (event : MouseEvent) => {
-      root.handleMouseEvent(val,[event.offsetX, event.offsetY])
+  const eventStrings : CanvasMouseEventTypes[] = ['click','mousedown','mouseup','mousemove']
+  eventStrings.forEach( (type) => {
+    stage.canvas.addEventListener(type, (event : MouseEvent) => {
+      const x = event.offsetX/stage.canvas.clientWidth * stage.width
+      const y = event.offsetY/stage.canvas.clientHeight * stage.height
+      root.handleMouseEvent(type,[x, y])
     })
   })
 
@@ -54,20 +56,20 @@ const app = (function() {
 
   // param object
   var params : any = {
-    bpm : 120
+    bpm : 30
   }
 
   function setup() {
     instrument.clear()
 
-    const orbit1 = instrument.addChild(new Orbit({ distance: 3, steps: 16, snap: true}))
+    const orbit1 = instrument.addChild(new Orbit({ speed: 1/4, steps: 16, snap: true}))
     orbit1.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0}))
     orbit1.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0.25}))
 
-    const orbit2 = instrument.addChild(new Orbit({ distance: 5, steps: 16, snap: false}))
+    const orbit2 = instrument.addChild(new Orbit({ speed: 1/2, steps: 16, snap: false}))
     orbit2.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0}))
 
-    const orbit3 = instrument.addChild(new Orbit({ distance: 7, steps: 32, snap: true}))
+    const orbit3 = instrument.addChild(new Orbit({ speed: 1, steps: 32, snap: true}))
     orbit3.addChild(new NotePlanet({ octave: 5, note: 'C', phase: 0}))
   } 
   

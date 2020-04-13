@@ -2,11 +2,8 @@ import { BasePlanet } from './baseElements'
 import { Note, SoundTrigger } from '../sound/types'
 import { Orbit } from './orbit';
 import { Stage } from '../engine/stage';
-import { euclidianDistance } from '../engine/utils';
-
-function snapTo(value : number, steps : number) : number  {
-  return Math.round(value * steps) / steps
-}
+import { euclidianDistance, snapTo } from '../engine/utils';
+import { CanvasMouseEvent } from '../engine/interactiveCanvasElement';
 
 class NotePlanet extends BasePlanet {
 
@@ -23,7 +20,7 @@ class NotePlanet extends BasePlanet {
     this.note.note.val = Note.toInt(note)
     this.note.octave.val = octave
 
-    this.handleEventTypes = ['mousedown', 'mouseup', 'mousemove']
+    this.setSelected(false)
   }
 
   update(angle: number, distance: number) {
@@ -44,18 +41,31 @@ class NotePlanet extends BasePlanet {
     return <Orbit>this.parent
   }
 
-  onMouseEvent(event: string, pos : [number, number]) {
-    if (event == 'mousedown') {
-      this.selected = true
-    } else if (event == 'mouseup') {
-      this.selected = false
-    } else if (this.selected && 'mousemove') {
-      const angle = Math.atan2(pos[1]+this.y,pos[0]+this.x)
-      if (this.orbit.props.snap)
-        this.props.phase = snapTo(angle / (Math.PI*2), this.orbit.props.steps)
-      else
-        this.props.phase = angle / (Math.PI*2)
+  setSelected(select : boolean) {
+    this.selected = select
+    if (select)
+      this.handleEventTypes = ['mouseup','mousemove']
+    else
+      this.handleEventTypes = ['mousedown']
+  }
+
+  onMouseEvent(event: CanvasMouseEvent) : boolean {
+    if (event.type == 'mousedown' && this.isPointInside(event.pos)) {
+      this.setSelected(true)
+      return true
+    } else if (this.selected) {
+      if (event.type == 'mouseup') {
+        this.setSelected(false)
+      } else if (event.type == 'mousemove') {
+        const angle = Math.atan2(event.pos[1]+this.y,event.pos[0]+this.x)
+        if (this.orbit.props.snap)
+          this.props.phase = snapTo(angle / (Math.PI*2), this.orbit.props.steps)
+        else
+          this.props.phase = angle / (Math.PI*2)
+      }
+      return true
     }
+    return false
   }
 }
 

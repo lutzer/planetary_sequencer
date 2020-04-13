@@ -2,6 +2,8 @@ import { InstrumentTypes, SoundTrigger } from '../sound/types'
 import { BasePlanet } from './baseElements'
 import { Stage } from '../engine/stage'
 import { Orbit } from './orbit'
+import _ from 'lodash'
+import { CanvasMouseEvent } from '../engine/interactiveCanvasElement'
 
 interface NoteTriggerCallbackHandler {
   (sound : SoundTrigger, atTime: number, step : number) : void
@@ -28,6 +30,7 @@ class InstrumentPlanet extends BasePlanet {
       this.type = type
       this.channel = channel
 
+      this.handleEventTypes = ['click']
       this.soundTriggerCallback = soundTriggerCallback
       this.setMode(InstrumentMode.PLAYING)
   }
@@ -41,14 +44,25 @@ class InstrumentPlanet extends BasePlanet {
     return this.mode
   }
 
-  onMouseEvent(event : string) {
-    if (event == 'click')
+  onMouseEvent(event : CanvasMouseEvent) {
+    if (event.type == 'click' && this.isPointInside(event.pos)) {
       this.setMode((this.mode+1)%2)
+      return true
+    }
+    return false
   }
 
   addChild(orbit : Orbit) : Orbit {
     super.addChild(orbit)
+    this.updateOrbits()
     return orbit
+  }
+
+  updateOrbits() {
+    this.children = _.sortBy(this.orbits, (orbit) => orbit.props.speed)
+    this.orbits.forEach( (orbit, index) => {
+      orbit.props.distance = 3 + index*2
+    })
   }
 
   get orbits() : Orbit[] {
@@ -67,7 +81,8 @@ class InstrumentPlanet extends BasePlanet {
     else
       this.props.fill = '#000000'
     super.draw(stage)
-    this.drawStepLine(stage)
+    if (this.mode == InstrumentMode.PLAYING)
+      this.drawStepLine(stage)
   }
 
   drawStepLine(stage : Stage) {

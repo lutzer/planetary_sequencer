@@ -1,15 +1,18 @@
 import _ from "lodash";
 import { Stage } from "../engine/stage";
 import { BaseCanvasElement } from "./baseElements";
-import { euclidianDistance } from "../engine/utils";
+import { euclidianDistance, snapTo } from "../engine/utils";
 import { InstrumentPlanet, InstrumentMode } from "./instrumentPlanets";
 import { NotePlanet } from "./notePlanets";
+import { Note } from "../sound/types";
+import { CanvasMouseEvent } from "../engine/interactiveCanvasElement";
 
 class Orbit extends BaseCanvasElement {
 
   props : any = {
     ...this.props,
     distance: 0,
+    speed : 1,
     steps: 0,
     stroke: 'black',
     opacity : 1.0,
@@ -18,11 +21,11 @@ class Orbit extends BaseCanvasElement {
 
   angle : number = 0;
 
-  constructor({distance, steps, snap = true} : {distance: number, steps : number, snap? : boolean}) {
+  constructor({speed, distance = 0, steps, snap = true} : { speed : number, steps : number, distance?: number, snap? : boolean}) {
     super({x:0, y:0, scale:1})
-    Object.assign(this.props, {distance, steps, snap})
+    Object.assign(this.props, {distance, steps, snap, speed})
 
-    this.handleEventTypes = []
+    this.handleEventTypes = ['mousedown']
   }
 
   addChild(planet : NotePlanet) {
@@ -38,13 +41,13 @@ class Orbit extends BaseCanvasElement {
   }
 
   update(time: number, bpm: number) {
-    const { distance } = this.props
+    const { distance, speed } = this.props
 
     
-    const orbitalPeriod = distance * 240 / bpm * 1000
+    const orbitalPeriod = speed * 240 / bpm * 1000
     const orbitalSpeed = Math.PI * 2 / orbitalPeriod
 
-    this.angle = (time * orbitalSpeed) % (Math.PI*2) - Math.PI/2
+    this.angle = (time * orbitalSpeed) % (Math.PI*2)
 
     this.planets.forEach( (planet) => {
       planet.update(this.instrument.getMode() == InstrumentMode.PLAYING ? this.angle : 0, distance)
@@ -53,13 +56,29 @@ class Orbit extends BaseCanvasElement {
     this.checkTriggers()
   }
 
+  isPointInside(pos : [number, number]) : boolean {
+    const { distance } = this.props
+    const dist = Math.sqrt(pos[0]*pos[0] + pos[1]*pos[1])
+    return dist > distance - 0.5 && dist < distance + 0.5
+  }
+
+  onMouseEvent(event : CanvasMouseEvent) : boolean {
+    const { snap, steps } = this.props
+    if (event.type == 'mousedown' && this.isPointInside(event.pos)) {
+      const phase = Math.atan2(event.pos[1]+this.y, event.pos[0]+this.x) / Math.PI / 2
+      this.addChild(new NotePlanet({ octave: 5, note: 'C', phase: snap ? snapTo(phase, steps) : phase }))
+      return true
+    }
+    return false
+  }
+
   checkTriggers() {
     // todo
   }
 
   draw(stage : Stage) {
-    super.draw(stage)
     const { stroke, strokeWidth, distance, opacity } = this.props
+    super.draw(stage)
     const context = stage.renderer
 
     context.lineWidth = strokeWidth*this.scale

@@ -5,15 +5,20 @@ function matrixToPointArray(mat : Matrix) : [number, number] {
   return <[number, number]>(<number[]>mat.toArray()).slice(0,2)
 }
 
+type CanvasMouseEventTypes = 'click' | 'mousemove' | 'mouseup' | 'mousedown'
+
+type CanvasMouseEvent = {
+  type : CanvasMouseEventTypes
+  pos : [number, number]
+}
+
 class InteractiveCanvasElement extends CanvasElement {
 
   propagateEvents : boolean = true
   handleEventTypes : string[] = []
 
-  selected : boolean = false
-
   constructor(
-    {x, y, scale = 1.0, rotation = 0, propagateEvents = true, handleEventTypes = ['click'] } : 
+    {x, y, scale = 1.0, rotation = 0, propagateEvents = true, handleEventTypes = [] } : 
     {x : number, y : number, scale?: number, rotation? : number, propagateEvents? : boolean, handleEventTypes? : string[]}) {
     super({x,y,scale,rotation})
 
@@ -21,37 +26,37 @@ class InteractiveCanvasElement extends CanvasElement {
     this.handleEventTypes = handleEventTypes
   }
 
-  handleMouseEvent(event : string, pos : [number, number]) {
+  handleMouseEvent(event : CanvasMouseEventTypes, pos : [number, number]) : boolean {
 
-    if (this.handleEventTypes.includes(event))
-      if (event == 'click' || event == 'mousedown') {
-        // transform coordinates to local system
-        const tmap = multiply( inv(this.transformMatrix), matrix([pos[0], pos[1], 1]))
-        const tpos = matrixToPointArray(tmap)
-        // check if its inside bounding box
-        if (this.isPointInside(tpos))
-            this.onMouseEvent(event, tpos)
-      } else if (this.selected) {
-        const tmap = multiply( inv(this.transformMatrix), matrix([pos[0], pos[1], 1]))
-        const tpos = matrixToPointArray(tmap)
-        this.onMouseEvent(event, tpos)
-      }
-      
-    // dont propagate when this element was selected
+    // first check children
     if (this.propagateEvents) {
       // propagate event to children
-      this.children.forEach( (child) => {
-        if (child instanceof InteractiveCanvasElement)
-          child.handleMouseEvent(event, pos)
-      })
+      for (const child of this.children) {
+        if (child instanceof InteractiveCanvasElement) {
+          const handled = child.handleMouseEvent(event, pos)
+          if (handled) return true
+        }
+      }
     }
+
+    // then check self
+    if (this.handleEventTypes.includes(event)) {
+        const tmap = multiply( inv(this.transformMatrix), matrix([pos[0], pos[1], 1]))
+        const tpos = matrixToPointArray(tmap)
+        const handled = this.onMouseEvent({ type: event, pos: tpos})
+        if (handled) return true
+    }
+    return false
   }
 
-  onMouseEvent(event : string, pos : [number, number]) {}
+  // return true if event got handled
+  onMouseEvent(event : CanvasMouseEvent) : boolean {
+    return false
+  }
 
   isPointInside(pos : number[]) : boolean {
     return false
   } 
 }
 
-export { InteractiveCanvasElement }
+export { InteractiveCanvasElement, CanvasMouseEvent, CanvasMouseEventTypes }
