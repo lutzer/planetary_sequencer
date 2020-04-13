@@ -69,25 +69,29 @@ class PlanetPulse {
   readonly PULSE_SIZE = 1.3
   readonly PULSE_DURATION = 300
 
-  pulse = 0.0
-  planet : BasePlanet = null
+  private pulse = 0
+  private planet : BasePlanet = null
 
-  pulseAtTime = 0.0
+  private pulseStart = 0
 
   constructor(planet : BasePlanet, duration : number = 100) {
     this.planet = planet
   }
 
   trigger(atTime: number) {
-    this.pulseAtTime = atTime
+    this.pulseStart = atTime
   }
 
   update(time: number) {
-    if (this.pulseAtTime > 0) {
-      const pulseTime = (time - this.pulseAtTime)
-      this.pulse = pulseTime > 0 && pulseTime < this.PULSE_DURATION ? (this.PULSE_DURATION-pulseTime) / this.PULSE_DURATION : 0
-    } else
-      this.pulse = 0.0
+    if (this.pulseStart <= 0)
+      return
+    const pulseTime = (time - this.pulseStart)
+    if (pulseTime < this.PULSE_DURATION)
+      this.pulse = (this.PULSE_DURATION - pulseTime) / this.PULSE_DURATION
+    else {
+      this.pulse = 0
+      this.pulseStart = 0
+    }
   }
 
   draw(stage : Stage) {
