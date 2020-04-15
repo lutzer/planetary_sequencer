@@ -39,10 +39,10 @@ const app = ( function() {
   })
 
   // handler for sound triggers
-  const onNoteTrigger : NoteTriggerCallbackHandler = (sound: NoteTrigger, atTime: number) => {
-    // console.info(['playnote',sound.getNoteString(),sound.getOctave()])
+  const onNoteTrigger : NoteTriggerCallbackHandler = (sound: NoteTrigger, atTime: number, stepDuration : number) => {
+    console.info(['playnote',sound.getNoteString(),sound.getNoteDuration(), stepDuration])
     if (audioOutput.isEnabled()) {
-      audioOutput.scheduleNote(sound.getNoteString(), sound.getGate() * 1000, atTime)
+      audioOutput.scheduleNote(sound.getNoteString(), stepDuration * sound.getNoteDuration(), atTime)
     }
   }
 

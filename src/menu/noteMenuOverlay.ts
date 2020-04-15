@@ -2,7 +2,6 @@ import _ from "lodash"
 import { CanvasHtml, getStyleString } from "./canvasHtml"
 import { NotePlanet } from "../components/notePlanets"
 import { Note } from './../sound/note'
-import globals from "../globals"
 
 class NoteMenuOverlay extends CanvasHtml {
 
@@ -32,9 +31,13 @@ class NoteMenuOverlay extends CanvasHtml {
     // elements
     const selectOctave = <HTMLSelectElement>this.getChildElement('select-octave')
     const selectNote = <HTMLSelectElement>this.getChildElement('select-note')
+    const selectGate = <HTMLSelectElement>this.getChildElement('select-gate')
+    const inputLength = <HTMLInputElement>this.getChildElement('input-length')
 
     selectOctave.value = String(planet.note.getOctave())
     selectNote.value = String(planet.note.getNote())
+    selectGate.value = String(planet.note.getGate())
+    inputLength.value = String(planet.note.getLength())
 
     // add listeners
     this.addListener(null, 'click', () => this.close())
@@ -48,11 +51,15 @@ class NoteMenuOverlay extends CanvasHtml {
     })
     this.addListener('select-octave', 'change', (event : any) => {
       planet.setNoteParam('octave', Number(selectOctave.value))
-      globals.lastEditedNote.octave.val = Number(selectOctave.value)
     })
     this.addListener('select-note', 'change', (event : any) => {
       planet.setNoteParam('note', Number(selectNote.value))
-      globals.lastEditedNote.note.val = Number(selectNote.value)
+    })
+    this.addListener('select-gate', 'change', (event : any) => {
+      planet.setNoteParam('gate', Number(selectGate.value))
+    })
+    this.addListener('input-length', 'change', (event : any) => {
+      planet.setNoteParam('length', Number(inputLength.value))
     })
 
     // apply container box style
@@ -73,7 +80,7 @@ class NoteMenuOverlay extends CanvasHtml {
       <div class="note-menu-container">
         <div>
           <label style="width: 60px; display: inline-block;" for="select-note">Note</label>
-          <select style="width: 50px;" id="select-note" class="select-note">
+          <select style="width: 60px;" id="select-note" class="select-note">
             <option value="0">${Note.fromInt(0)}</option>
             <option value="1">${Note.fromInt(1)}</option>
             <option value="2">${Note.fromInt(2)}</option>
@@ -87,10 +94,10 @@ class NoteMenuOverlay extends CanvasHtml {
             <option value="10">${Note.fromInt(10)}</option>
             <option value="11">${Note.fromInt(11)}</option>
           </select>
-        <div>
+        </div>
         <div>
           <label style="width: 60px; display: inline-block;">Octave</label>
-          <select style="width: 50px;" class="select-octave">
+          <select style="width: 60px;" class="select-octave">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -98,7 +105,21 @@ class NoteMenuOverlay extends CanvasHtml {
             <option value="5">5</option>
             <option value="6">6</option>
           </select>
+        </div>
         <div>
+          <label style="width: 60px; display: inline-block;">Gate</label>
+          <select style="width: 60px;" class="select-gate">
+            <option value="0">0.0</option>
+            <option value="0.25">0.25</option>
+            <option value="0.5">0.5</option>
+            <option value="0.75">0.75</option>
+            <option value="1">1.0</option>
+          </select>
+        </div>
+        <div>
+          <label style="width: 60px; display: inline-block;">Length</label>
+          <input style="width: 60px;" type="number" class="input-length" name="tentacles" min="1" max="64">
+       </div>
         <button style="width: 100%; margin-top: 5px;" class="button-delete">Delete</button>
         <button style="width: 100%; margin-top: 5px;" class="button-close">Close</button>
       <div>

@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { CanvasMouseEvent, CanvasMouseButton } from '../engine/canvasMouse'
 
 interface NoteTriggerCallbackHandler {
-  (sound : NoteTrigger, atTime: number) : void
+  (sound : NoteTrigger, atTime: number, stepDuration : number) : void
 }
 
 enum InstrumentMode {

@@ -42,7 +42,7 @@ class SynthStorage {
       { speed : 1/4, steps: 16, snap: true, notes: [
         { note: 0, octave : 3, phase: 0, length: 1, gate: 1}
       ]},
-      { speed : 1, steps: 32, snap: false, notes: []}
+      { speed : 1, steps: 32, snap: true, notes: []}
     ]}, loadedData)
   }
 

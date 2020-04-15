@@ -22,6 +22,7 @@ class Orbit extends BaseCanvasElement {
   }
 
   angle : number = 0
+  stepDuration : number = 0
 
   scheduler : TriggerScheduler = null
 
@@ -32,7 +33,7 @@ class Orbit extends BaseCanvasElement {
     this.handleEventTypes = ['click']
     this.scheduler = new TriggerScheduler({ interval: 100, triggerCallback : (planet, time) => {
       planet.triggerPulse(time)
-      this.instrument.noteTriggerCallback(planet.note, time)
+      this.instrument.noteTriggerCallback(planet.note, time, this.stepDuration)
     }})
   }
 
@@ -49,10 +50,12 @@ class Orbit extends BaseCanvasElement {
   }
 
   update(time: number, bpm: number) {
-    const { distance, speed } = this.props
+    const { distance, speed, steps } = this.props
 
     const orbitalPeriod = speed * 240 / bpm * 1000
     const orbitalSpeed = Math.PI * 2 / orbitalPeriod
+    
+    this.stepDuration = orbitalPeriod / steps
 
     this.angle = (time * orbitalSpeed) % (Math.PI*2)
 
@@ -77,7 +80,10 @@ class Orbit extends BaseCanvasElement {
         this.addChild(new NotePlanet({ 
           octave: globals.lastEditedNote.octave.val, 
           note: globals.lastEditedNote.note.val, 
-          phase: snap ? snapTo(phase, steps) : phase }))
+          gate: globals.lastEditedNote.gate.val,
+          phase: snap ? snapTo(phase, steps) : phase,
+          length: globals.lastEditedNote.length.val 
+        }))
       }
       return true
     }

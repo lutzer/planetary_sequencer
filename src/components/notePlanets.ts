@@ -19,14 +19,15 @@ class NotePlanet extends BasePlanet {
   pulse : PlanetPulse = null
 
   constructor(
-    { octave, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : 
-    { octave: number, note: number, phase?: number, gate? : number, fill? : string }) {
+    { octave, note, phase = 0.0, gate = 0.5, length = 1, fill = '#eeeeee' } : 
+    { octave: number, note: number, phase?: number, gate? : number, length? : number, fill? : string }) {
     super({scale: 1.0, phase, fill})
 
     this.setNoteParam('length', 1)
     this.setNoteParam('gate', gate)
     this.setNoteParam('note', note)
     this.setNoteParam('octave', octave)
+    this.setNoteParam('length', length)
 
     this.setSelected(false)
 
@@ -54,6 +55,7 @@ class NotePlanet extends BasePlanet {
     this.note[parameter].val = val
     if (parameter == 'octave')
       this.props.size = 0.5 - val * 0.05
+    globals.lastEditedNote[parameter].val = val
   }
 
   get orbit() : Orbit {

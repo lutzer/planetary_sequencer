@@ -41,6 +41,10 @@ class NoteTrigger {
     return Note.fromInt(this.note.sum) + this.octave.sum 
   }
 
+  getNoteDuration() : number {
+    return this.length.sum * this.gate.sum
+  }
+
   getNote() : number {
     return this.note.sum
   }
