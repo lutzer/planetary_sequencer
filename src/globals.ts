@@ -1,9 +1,12 @@
 import { NoteContextMenuHandler } from "./components/notePlanets";
+import { NoteTrigger, Note } from "./sound/note";
 
 var globals : {
-  onNoteContextMenu: NoteContextMenuHandler
+  onNoteContextMenu: NoteContextMenuHandler,
+  lastEditedNote: NoteTrigger
 } = {
-  onNoteContextMenu : () => {}
+  onNoteContextMenu : () => {},
+  lastEditedNote : new NoteTrigger()
 }
 
 export default globals

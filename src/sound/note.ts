@@ -28,14 +28,18 @@ type NoteTriggerProperties = 'gate' | 'note' | 'octave' | 'repeats' | 'length'
 
 class NoteTrigger {
 
-  gate = new NoteParam(0.5)
+  gate = new NoteParam(1.0)
   note = new NoteParam(0)
-  octave = new NoteParam(1)
+  octave = new NoteParam(3)
   repeats = new NoteParam(0)
-  length = new NoteParam(1)
+  length = new NoteParam(1.0)
 
   // scale = [0,1,2,3,4,5,6,7,8,9,11]
   // rootNote = 0
+
+  getNoteString() : string {
+    return Note.fromInt(this.note.sum) + this.octave.sum 
+  }
 
   getNote() : number {
     return this.note.sum

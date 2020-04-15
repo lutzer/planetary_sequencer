@@ -3,7 +3,7 @@ import { OutputDevice } from './outputs'
 
 class MidiOutput extends OutputDevice {
 
-  constructor({ channel = 0 }) {
+  constructor({ channel = 1 }) {
     super()
 
     this.midiChannel = channel
@@ -29,12 +29,10 @@ class MidiOutput extends OutputDevice {
       } else {
         resolve()
       }
-  })
-     
+    })
   }
 
   get outputs() {
-    console.log(WebMidi.outputs)
     return WebMidi.outputs
   }
 
@@ -42,7 +40,7 @@ class MidiOutput extends OutputDevice {
   setOutput(outputIndex = null) {
     if (outputIndex != null && outputIndex > this.outputs.length)
       console.warn("cannot select midi device with this index")
-    // this.midiOutput = this.outputs[outputIndex]
+    this.midiOutput = this.outputs[outputIndex]
   }
 
   scheduleNote(note, duration, time = undefined) {

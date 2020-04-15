@@ -5,6 +5,7 @@ import { Stage } from '../engine/stage';
 import { euclidianDistance, snapTo } from '../engine/utils';
 import { CanvasMouseEvent, CanvasMouseButton } from '../engine/canvasMouse';
 import globals from './../globals'
+import { NoteModelScheme } from '../storage/storage';
 
 interface NoteContextMenuHandler {
   (planet : NotePlanet, position: [number, number]) : void
@@ -19,12 +20,12 @@ class NotePlanet extends BasePlanet {
 
   constructor(
     { octave, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : 
-    { octave: number, note: string, phase?: number, gate? : number, fill? : string }) {
+    { octave: number, note: number, phase?: number, gate? : number, fill? : string }) {
     super({scale: 1.0, phase, fill})
 
     this.setNoteParam('length', 1)
-    this.setNoteParam('length', gate)
-    this.setNoteParam('note', Note.toInt(note))
+    this.setNoteParam('gate', gate)
+    this.setNoteParam('note', note)
     this.setNoteParam('octave', octave)
 
     this.setSelected(false)
@@ -97,6 +98,17 @@ class NotePlanet extends BasePlanet {
 
   triggerPulse(atTime: number) {
     this.pulse.trigger(atTime)
+  }
+
+
+  getDataModel() : NoteModelScheme {
+    return {
+      length: this.note.getLength(),
+      gate: this.note.getGate(),
+      note: this.note.getNote(),
+      octave: this.note.getOctave(),
+      phase: this.props.phase
+    }
   }
 }
 

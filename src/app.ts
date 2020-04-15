@@ -2,9 +2,6 @@ import _ from 'lodash';
 import { Stage } from "./engine/stage"
 import { InstrumentPlanet, NoteTriggerCallbackHandler } from './components/instrumentPlanets'
 import { NoteTrigger } from './sound/note'
-import { scales, rythms } from './sound/audioValues'
-import { OutputDevice } from './sound/outputs'
-//@ts-ignore 
 import { Orbit } from './components/orbit';
 import { NotePlanet, NoteContextMenuHandler } from './components/notePlanets';
 import { InteractiveCanvasElement } from './engine/interactiveCanvasElement';
@@ -12,23 +9,21 @@ import { CanvasMouseEvent } from './engine/canvasMouse';
 import { NoteMenuOverlay } from './menu/noteMenuOverlay';
 import globals from './globals'
 import { MidiOutput } from './sound/midiOutput';
+import { SynthStorage } from './storage/storage';
 
 const settings = {
   width: 512,
   height: 512,
   zoom: 0.1,
-  fps : 60
-}
-
-// param object
-var params : any = {
-  bpm : 10
+  fps : 60,
+  saveInterval: 5000
 }
 
 const app = ( function() {
 
-  var audioOutput = new OutputDevice()
-  // await audioOutput.enable(true)
+  var storage = new SynthStorage()
+
+  var audioOutput = new MidiOutput({ channel: 1})
 
   const stage = new Stage({ width: settings.width, height: settings.height })
   const root = new InteractiveCanvasElement({ 
@@ -44,9 +39,10 @@ const app = ( function() {
   })
 
   // handler for sound triggers
-  const onNoteTrigger : NoteTriggerCallbackHandler = (sound: NoteTrigger, atTime: number, step: number) => {
+  const onNoteTrigger : NoteTriggerCallbackHandler = (sound: NoteTrigger, atTime: number) => {
+    // console.info(['playnote',sound.getNoteString(),sound.getOctave()])
     if (audioOutput.isEnabled()) {
-      audioOutput.scheduleNote(sound.getNote() + "" + sound.getOctave(), sound.getGate() * 500, atTime)
+      audioOutput.scheduleNote(sound.getNoteString(), sound.getGate() * 1000, atTime)
     }
   }
 
@@ -57,24 +53,29 @@ const app = ( function() {
   }
 
   // create root node
-  var instrument = new InstrumentPlanet({scale: settings.zoom, noteTriggerCallback : onNoteTrigger})
+  var instrument = new InstrumentPlanet({bpm: 30, scale: settings.zoom, noteTriggerCallback : onNoteTrigger})
 
   // add instrument to canvas
   root.addChild(instrument)
-  
 
-  function setup() {
+  setInterval( () => {
+    storage.save(instrument)
+  }, settings.saveInterval)
+  
+  function setup(defaultValues = false) {
     instrument.clear()
 
-    const orbit1 = instrument.addChild(new Orbit({ speed: 1/8, steps: 8, snap: true}))
-    orbit1.addChild(new NotePlanet({ octave: 1, note: 'C', phase: 0}))
-    const planet = orbit1.addChild(new NotePlanet({ octave: 4, note: 'C', phase: 0.25}))
+    // load data
+    var data = storage.load(defaultValues)
 
-    const orbit2 = instrument.addChild(new Orbit({ speed: 1/2, steps: 16, snap: false}))
-    orbit2.addChild(new NotePlanet({ octave: 2, note: 'C', phase: 0}))
-
-    const orbit3 = instrument.addChild(new Orbit({ speed: 1, steps: 32, snap: true}))
-    orbit3.addChild(new NotePlanet({ octave: 3, note: 'C', phase: 0}))
+    // setup planets
+    instrument.bpm = data.bpm
+    data.orbits.forEach( (orbitData) => {
+      const orbit = instrument.addChild(new Orbit({ speed: orbitData.speed, steps: orbitData.steps, snap: orbitData.snap}))
+      orbitData.notes.forEach( (noteData) => {
+        orbit.addChild(new NotePlanet({ octave: noteData.octave, note: noteData.note, phase: noteData.phase, gate: noteData.gate}))
+      });
+    })
   } 
   
   function loop(time : number = 0.0, updated : number = 0.0) {
@@ -91,7 +92,7 @@ const app = ( function() {
       context.fillRect(0,0, stage.width, stage.height)
 
       // update all nodes
-      instrument.update(time, params.bpm || 0)
+      instrument.update(time)
       
       //draw everything
       root.render(stage)
@@ -105,7 +106,22 @@ const app = ( function() {
   return {
     start : () => {
       setup()
-      loop() 
+      loop()
+    },
+    save : () => {
+      storage.save(instrument)
+    },
+    reset : () => {
+      setup(true)
+    },
+    enableSound(enable : boolean) {
+      audioOutput.enable(enable)
+    },
+    setBpm(bpm : number) {
+      instrument.bpm = bpm
+    },
+    getBpm() : number {
+      return instrument.bpm
     }
   }
 })()

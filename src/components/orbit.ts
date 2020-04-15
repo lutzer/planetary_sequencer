@@ -6,6 +6,8 @@ import { InstrumentPlanet, InstrumentMode } from "./instrumentPlanets";
 import { NotePlanet } from "./notePlanets";
 import { CanvasMouseEvent, CanvasMouseButton } from "../engine/canvasMouse";
 import { TriggerScheduler } from "./triggerScheduler";
+import { OrbitModelScheme } from "../storage/storage";
+import globals from "../globals";
 
 class Orbit extends BaseCanvasElement {
 
@@ -30,6 +32,7 @@ class Orbit extends BaseCanvasElement {
     this.handleEventTypes = ['click']
     this.scheduler = new TriggerScheduler({ interval: 100, triggerCallback : (planet, time) => {
       planet.triggerPulse(time)
+      this.instrument.noteTriggerCallback(planet.note, time)
     }})
   }
 
@@ -71,7 +74,10 @@ class Orbit extends BaseCanvasElement {
     if (event.type == 'click' && this.isPointInside(event.pos)) {
       if (event.button == CanvasMouseButton.LEFT ) {
         const phase = Math.atan2(event.pos[1]+this.y, event.pos[0]+this.x) / Math.PI / 2
-        this.addChild(new NotePlanet({ octave: 5, note: 'C', phase: snap ? snapTo(phase, steps) : phase }))
+        this.addChild(new NotePlanet({ 
+          octave: globals.lastEditedNote.octave.val, 
+          note: globals.lastEditedNote.note.val, 
+          phase: snap ? snapTo(phase, steps) : phase }))
       }
       return true
     }
@@ -149,6 +155,17 @@ class Orbit extends BaseCanvasElement {
       context.fill()
       context.stroke()
     })
+  }
+
+  getDataModel() : OrbitModelScheme {
+    return { 
+      speed: this.props.speed, 
+      steps: this.props.steps, 
+      snap: this.props.snap,
+      notes : this.planets.map( (planet) => {
+        return planet.getDataModel()
+      })
+    }
   }
 }
 

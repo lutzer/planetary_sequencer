@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { CanvasMouseEvent, CanvasMouseButton } from '../engine/canvasMouse'
 
 interface NoteTriggerCallbackHandler {
-  (sound : NoteTrigger, atTime: number, step : number) : void
+  (sound : NoteTrigger, atTime: number) : void
 }
 
 enum InstrumentMode {
@@ -15,22 +15,24 @@ enum InstrumentMode {
 
 class InstrumentPlanet extends BasePlanet {
 
-  soundTriggerCallback : NoteTriggerCallbackHandler
+  noteTriggerCallback : NoteTriggerCallbackHandler
 
   protected channel : number
-
   private mode : InstrumentMode
 
+  bpm : number
+
   constructor(
-    {channel = null, scale = 1.0, noteTriggerCallback = () => {}} : 
-    {channel? : number, scale? : number, noteTriggerCallback? : NoteTriggerCallbackHandler }) {
+    {bpm = 30, channel = null, scale = 1.0, noteTriggerCallback = () => {}} : 
+    {bpm : number, channel? : number, scale? : number, noteTriggerCallback? : NoteTriggerCallbackHandler }) {
       super({scale})
 
       this.channel = channel
 
       this.handleEventTypes = ['click']
-      this.soundTriggerCallback = noteTriggerCallback
+      this.noteTriggerCallback = noteTriggerCallback
       this.setSelected(false)
+      this.bpm = 30
   }
 
   setSelected(select : boolean) {
@@ -69,9 +71,9 @@ class InstrumentPlanet extends BasePlanet {
     return <Orbit[]>this.children;
   }
 
-  update(time: number, bpm: number) {
+  update(time: number) {
     this.orbits.forEach( (orbit : Orbit) => {
-      orbit.update(time, bpm)
+      orbit.update(time, this.bpm)
     })
   }
 

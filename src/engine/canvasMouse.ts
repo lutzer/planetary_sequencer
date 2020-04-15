@@ -1,5 +1,5 @@
-import { fromEvent, combineLatest } from 'rxjs'
-import { switchMap, timeInterval, takeUntil } from 'rxjs/operators';
+import { fromEvent } from 'rxjs'
+import { switchMap, takeUntil } from 'rxjs/operators';
 import { Stage } from './stage';
 
 type CanvasMouseEventType = 'click' | 'drag' | 'mouseup' | 'mousedown'

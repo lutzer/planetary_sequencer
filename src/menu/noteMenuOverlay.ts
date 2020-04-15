@@ -2,6 +2,7 @@ import _ from "lodash"
 import { CanvasHtml, getStyleString } from "./canvasHtml"
 import { NotePlanet } from "../components/notePlanets"
 import { Note } from './../sound/note'
+import globals from "../globals"
 
 class NoteMenuOverlay extends CanvasHtml {
 
@@ -47,9 +48,11 @@ class NoteMenuOverlay extends CanvasHtml {
     })
     this.addListener('select-octave', 'change', (event : any) => {
       planet.setNoteParam('octave', Number(selectOctave.value))
+      globals.lastEditedNote.octave.val = Number(selectOctave.value)
     })
     this.addListener('select-note', 'change', (event : any) => {
       planet.setNoteParam('note', Number(selectNote.value))
+      globals.lastEditedNote.note.val = Number(selectNote.value)
     })
 
     // apply container box style
