@@ -4,7 +4,7 @@ import { BaseCanvasElement } from "./baseElements";
 import { snapTo } from "../engine/utils";
 import { InstrumentPlanet, InstrumentMode } from "./instrumentPlanets";
 import { NotePlanet } from "./notePlanets";
-import { CanvasMouseEvent, CanvasMouseButton } from "../engine/mouseEvents";
+import { CanvasMouseEvent, CanvasMouseButton } from "../engine/canvasMouse";
 import { TriggerScheduler } from "./triggerScheduler";
 
 class Orbit extends BaseCanvasElement {
@@ -33,8 +33,8 @@ class Orbit extends BaseCanvasElement {
     }})
   }
 
-  addChild(planet : NotePlanet) {
-    super.addChild(planet)
+  addChild(planet : NotePlanet) : NotePlanet {
+    return <NotePlanet>super.addChild(planet)
   }
 
   get planets() : NotePlanet[] {

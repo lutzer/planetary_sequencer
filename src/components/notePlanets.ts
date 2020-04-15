@@ -1,13 +1,18 @@
 import { BasePlanet, PlanetPulse } from './baseElements'
-import { Note, SoundTrigger } from '../sound/types'
+import { Note, NoteTrigger, NoteTriggerProperties } from '../sound/note'
 import { Orbit } from './orbit';
 import { Stage } from '../engine/stage';
 import { euclidianDistance, snapTo } from '../engine/utils';
-import { CanvasMouseEvent, CanvasMouseButton } from '../engine/mouseEvents';
+import { CanvasMouseEvent, CanvasMouseButton } from '../engine/canvasMouse';
+import globals from './../globals'
+
+interface NoteContextMenuHandler {
+  (planet : NotePlanet, position: [number, number]) : void
+}
 
 class NotePlanet extends BasePlanet {
 
-  note = new SoundTrigger()
+  note = new NoteTrigger()
   currentAngle : number = 0
 
   pulse : PlanetPulse = null
@@ -15,12 +20,12 @@ class NotePlanet extends BasePlanet {
   constructor(
     { octave, note, phase = 0.0, gate = 0.5, fill = '#eeeeee' } : 
     { octave: number, note: string, phase?: number, gate? : number, fill? : string }) {
-    super({scale: 1.0, phase, fill, size : 0.2 + octave * 0.05})
+    super({scale: 1.0, phase, fill})
 
-    this.note.length.val = 1
-    this.note.gate.val = gate
-    this.note.note.val = Note.toInt(note)
-    this.note.octave.val = octave
+    this.setNoteParam('length', 1)
+    this.setNoteParam('length', gate)
+    this.setNoteParam('note', Note.toInt(note))
+    this.setNoteParam('octave', octave)
 
     this.setSelected(false)
 
@@ -44,6 +49,12 @@ class NotePlanet extends BasePlanet {
     this.pulse.draw(stage)
   }
 
+  setNoteParam(parameter : NoteTriggerProperties, val : number) {
+    this.note[parameter].val = val
+    if (parameter == 'octave')
+      this.props.size = 0.5 - val * 0.05
+  }
+
   get orbit() : Orbit {
     return <Orbit>this.parent
   }
@@ -53,16 +64,22 @@ class NotePlanet extends BasePlanet {
     if (select)
       this.handleEventTypes = ['mouseup','drag']
     else
-      this.handleEventTypes = ['mousedown']
+      this.handleEventTypes = ['mousedown','click']
+  }
+
+  delete() {
+    this.orbit.removeChild(this)
   }
 
   onMouseEvent(event: CanvasMouseEvent) : boolean {
-    if (event.type == 'mousedown' && this.isPointInside(event.pos)) {
-      if (event.button == CanvasMouseButton.LEFT)
+    // if not selected
+    if (!this.selected && this.isPointInside(event.pos)) {
+      if (event.type == 'mousedown' && event.button == CanvasMouseButton.LEFT)
         this.setSelected(true)
-      else if (event.button == CanvasMouseButton.RIGHT)
-        this.orbit.removeChild(this)
-      return true
+      else if (event.type == 'click' && event.button == CanvasMouseButton.LEFT)
+        globals.onNoteContextMenu(this, event.canvasPos)
+      return true;
+    // if selected
     } else if (this.selected) {
       if (event.type == 'mouseup') {
         this.setSelected(false)
@@ -83,4 +100,4 @@ class NotePlanet extends BasePlanet {
   }
 }
 
-export { NotePlanet }
+export { NotePlanet, NoteContextMenuHandler }

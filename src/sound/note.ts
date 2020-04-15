@@ -1,9 +1,5 @@
 import _ from 'lodash'
 
-enum InstrumentTypes {
-  MIDI, SAMPLER
-}
-
 class Note {
   static readonly map : {[key: string]: number} = {
     'C': 0,
@@ -28,19 +24,21 @@ class Note {
   }
 }
 
-class SoundTrigger {
+type NoteTriggerProperties = 'gate' | 'note' | 'octave' | 'repeats' | 'length'
 
-  gate = new SoundParam(0.5)
-  note = new SoundParam(0)
-  octave = new SoundParam(1)
-  repeats = new SoundParam(0)
-  length = new SoundParam(1)
+class NoteTrigger {
+
+  gate = new NoteParam(0.5)
+  note = new NoteParam(0)
+  octave = new NoteParam(1)
+  repeats = new NoteParam(0)
+  length = new NoteParam(1)
 
   // scale = [0,1,2,3,4,5,6,7,8,9,11]
   // rootNote = 0
 
-  getNote() : string {
-    return Note.fromInt(this.note.sum) + this.octave.sum 
+  getNote() : number {
+    return this.note.sum
   }
 
   getLength() : number {
@@ -55,13 +53,17 @@ class SoundTrigger {
     return this.repeats.sum
   }
 
+  getOctave() : number {
+    return this.octave.sum
+  }
+
   // setScale(rootNote: number, scale : number[]) {
   //   this.rootNote = rootNote
   //   this.scale = scale
   // }
 }
 
-class SoundParam {
+class NoteParam {
   val : number
   mod : number
 
@@ -75,4 +77,4 @@ class SoundParam {
   }
 }
 
-export { InstrumentTypes, Note, SoundParam, SoundTrigger }
+export { Note, NoteTrigger, NoteTriggerProperties, NoteParam }

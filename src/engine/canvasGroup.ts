@@ -15,8 +15,9 @@ class CanvasGroup {
     })
   }
 
-  addChild(child : CanvasElement) {
+  addChild(child : CanvasElement) : CanvasElement {
     this.children.push(child)
+    return child
   }
 
   removeChild(child : CanvasElement) : CanvasElement {

@@ -14,6 +14,7 @@ type CanvasMouseEvent = {
   type : CanvasMouseEventType
   pos : [number, number]
   button : CanvasMouseButton
+  canvasPos : [number, number]
 }
 
 interface CanvasMouseHandler {
@@ -23,14 +24,14 @@ interface CanvasMouseHandler {
 function canvasToStageEvent(type: CanvasMouseEventType, event: MouseEvent, stage: Stage) : CanvasMouseEvent {
   const x = event.offsetX * stage.scale
   const y = event.offsetY * stage.scale
-  return {type: type, pos: [x,y], button: event.which }
+  return {type: type, pos: [0,0], button: event.which, canvasPos : [x,y] }
 }
 
 class CanvasMouse {
 
   listener : CanvasMouseHandler = () => {}
 
-  constructor(stage : Stage ) {
+  constructor(stage : Stage) {
     
     const $mousemove = fromEvent<MouseEvent>(stage.canvas,'mousemove')
     const $mousedown = fromEvent<MouseEvent>(stage.canvas,'mousedown')

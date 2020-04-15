@@ -1,12 +1,12 @@
-import { InstrumentTypes, SoundTrigger } from '../sound/types'
+import { NoteTrigger } from '../sound/note'
 import { BasePlanet } from './baseElements'
 import { Stage } from '../engine/stage'
 import { Orbit } from './orbit'
 import _ from 'lodash'
-import { CanvasMouseEvent, CanvasMouseButton } from '../engine/mouseEvents'
+import { CanvasMouseEvent, CanvasMouseButton } from '../engine/canvasMouse'
 
 interface NoteTriggerCallbackHandler {
-  (sound : SoundTrigger, atTime: number, step : number) : void
+  (sound : NoteTrigger, atTime: number, step : number) : void
 }
 
 enum InstrumentMode {
@@ -17,21 +17,19 @@ class InstrumentPlanet extends BasePlanet {
 
   soundTriggerCallback : NoteTriggerCallbackHandler
 
-  protected type : InstrumentTypes
   protected channel : number
 
   private mode : InstrumentMode
 
   constructor(
-    {type, channel = null, scale = 1.0, soundTriggerCallback = () => {}} : 
-    {type : InstrumentTypes, channel? : number, scale? : number, soundTriggerCallback? : NoteTriggerCallbackHandler }) {
+    {channel = null, scale = 1.0, noteTriggerCallback = () => {}} : 
+    {channel? : number, scale? : number, noteTriggerCallback? : NoteTriggerCallbackHandler }) {
       super({scale})
 
-      this.type = type
       this.channel = channel
 
       this.handleEventTypes = ['click']
-      this.soundTriggerCallback = soundTriggerCallback
+      this.soundTriggerCallback = noteTriggerCallback
       this.setSelected(false)
   }
 
@@ -78,13 +76,14 @@ class InstrumentPlanet extends BasePlanet {
   }
 
   draw(stage : Stage) {
-    if (this.getMode() == InstrumentMode.PLAYING)
-      this.props.fill = '#eeeeee'
-    else
-      this.props.fill = '#000000'
-    super.draw(stage)
-    if (this.mode == InstrumentMode.PLAYING)
+    if (this.mode == InstrumentMode.PLAYING) {
       this.drawStepLine(stage)
+      this.props.fill = '#ffffff'
+    } else {
+      this.props.fill = '#000000'
+    }
+    super.draw(stage)
+    
   }
 
   drawStepLine(stage : Stage) {
@@ -102,4 +101,4 @@ class InstrumentPlanet extends BasePlanet {
   }
 }
 
-export { InstrumentPlanet, InstrumentMode }
+export { InstrumentPlanet, InstrumentMode, NoteTriggerCallbackHandler }

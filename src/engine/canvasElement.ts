@@ -12,6 +12,8 @@ class CanvasElement extends CanvasGroup {
   scale : number = 1
   rotation : number = 0
 
+  private transform : Matrix = null
+
   constructor({x, y, scale = 1.0, rotation = 0} : {x : number, y : number, scale?: number, rotation? : number}) {
     super()
     this.position = [x,y]
@@ -19,9 +21,9 @@ class CanvasElement extends CanvasGroup {
     this.rotation = rotation
   }
 
-  addChild(child : CanvasElement) {
+  addChild(child : CanvasElement) : CanvasElement {
     child.parent = this
-    super.addChild(child)
+    return super.addChild(child)
   }
 
   get transformMatrix() : Matrix {
@@ -39,9 +41,10 @@ class CanvasElement extends CanvasGroup {
       transform = multiply( transform, rotation)
     }
     if (!this.parent)
-      return transform
+      this.transform = transform
     else
-      return multiply( this.parent.transformMatrix, transform)   
+      this.transform = multiply( this.parent.transformMatrix, transform)
+    return this.transform 
   }
 
   get x() : number {

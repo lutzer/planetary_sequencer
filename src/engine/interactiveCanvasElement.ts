@@ -1,6 +1,6 @@
 import { CanvasElement } from "./canvasElement"
 import { multiply, matrix, inv, Matrix }  from "mathjs"
-import { CanvasMouseEvent } from "./mouseEvents"
+import { CanvasMouseEvent } from "./canvasMouse"
 
 function matrixToPointArray(mat : Matrix) : [number, number] {
   return <[number, number]>(<number[]>mat.toArray()).slice(0,2)
@@ -34,9 +34,9 @@ class InteractiveCanvasElement extends CanvasElement {
 
     // then check self
     if (this.handleEventTypes.includes(event.type)) {
-        const tmap = multiply( inv(this.transformMatrix), matrix([event.pos[0], event.pos[1], 1]))
+        const tmap = multiply( inv(this.transformMatrix), matrix([event.canvasPos[0], event.canvasPos[1], 1]))
         const tpos = matrixToPointArray(tmap)
-        const handled = this.onMouseEvent({ type: event.type, pos: tpos, button: event.button})
+        const handled = this.onMouseEvent({ type: event.type, pos: tpos, button: event.button, canvasPos: event.canvasPos })
         if (handled) return true
     }
     return false
