@@ -4,7 +4,9 @@ An Interactive Sequencer inspired by Planetary Movements
 
 ## Demo
 
-Demo: [https://lutzer.github.io/planetary_sequencer/](https://lutzer.github.io/planetary_sequencer/).
+Demos: 
+* v1 (with sampler): [https://lutzer.github.io/planetary_sequencer/v1](https://lutzer.github.io/planetary_sequencer/v1).
+* v2 (interactive, with midi out): [https://lutzer.github.io/planetary_sequencer/v2](https://lutzer.github.io/planetary_sequencer/v2)
 
 ## Setup
 
