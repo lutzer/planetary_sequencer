@@ -122,6 +122,9 @@ const app = ( function() {
     },
     getBpm() : number {
       return instrument.bpm
+    },
+    setMidiChannel(channel : number) {
+      audioOutput.midiChannel = channel
     }
   }
 })()
