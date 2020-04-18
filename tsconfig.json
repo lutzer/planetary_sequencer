@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./docs/",
+    "outDir": "./docs/v2",
     "noImplicitAny": true,
     "sourceMap": true,
     "module": "commonjs",
