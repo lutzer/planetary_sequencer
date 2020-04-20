@@ -10,7 +10,7 @@ class GuiParams {
   enableOutput = true;
   bpm = app.getBpm()
   output = 'midi';
-  midiChannel = 0;
+  midiChannel = 1;
   save = function() {
     app.save()
   }
