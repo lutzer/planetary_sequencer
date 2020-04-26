@@ -6,7 +6,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = (env, argv) => {
   const isDevelopment = argv.mode === 'development';
 
-  const builDir = 'docs/v2'
+  const builDir = 'docs/v3'
 
   return ({
     entry: './src/index.ts',

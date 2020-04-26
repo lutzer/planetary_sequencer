@@ -46,7 +46,7 @@ class Stage {
     this.mouseHandler.listener = listener
   }
 
-  get renderer() : CanvasRenderingContext2D {
+  get context() : CanvasRenderingContext2D {
     return <CanvasRenderingContext2D>this.canvasElement.getContext('2d', {})
   }
 

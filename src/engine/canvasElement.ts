@@ -68,9 +68,9 @@ class CanvasElement extends CanvasGroup {
 
   protected beforeDraw(stage : Stage) {
     if (this.parent)
-      stage.renderer.setTransform(toDOMMatrix(this.parent.transformMatrix))
+      stage.context.setTransform(toDOMMatrix(this.parent.transformMatrix))
     else
-      stage.renderer.resetTransform()
+      stage.context.resetTransform()
   }
 
   draw(stage : Stage) {}

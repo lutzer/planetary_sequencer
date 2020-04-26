@@ -1,7 +1,7 @@
 import _ from "lodash"
 import { CanvasHtml, getStyleString } from "./canvasHtml"
-import { NotePlanet } from "../components/notePlanets"
 import { Note } from './../sound/note'
+import { NotePlanetProperties } from "../components/planets"
 
 class NoteMenuOverlay extends CanvasHtml {
 
@@ -24,7 +24,7 @@ class NoteMenuOverlay extends CanvasHtml {
     'border' : '1px solid #cccccc'
   }
 
-  constructor(planet : NotePlanet, position : [number, number]) {
+  constructor(planet : NotePlanetProperties, position : [number, number]) {
     super('note-menu')
     this.htmlElement.setAttribute('style', getStyleString(this.style))
 
@@ -34,33 +34,32 @@ class NoteMenuOverlay extends CanvasHtml {
     const selectGate = <HTMLSelectElement>this.getChildElement('select-gate')
     const inputLength = <HTMLInputElement>this.getChildElement('input-length')
 
-    selectOctave.value = String(planet.note.getOctave())
-    selectNote.value = String(planet.note.getNote())
-    selectGate.value = String(planet.note.getGate())
-    inputLength.value = String(planet.note.getLength())
+    selectOctave.value = String(planet.octave)
+    selectNote.value = String(planet.note)
+    selectGate.value = String(planet.gate)
 
-    // add listeners
-    this.addListener(null, 'click', () => this.close())
-    this.addListener('button-close', 'click', () => this.close())
-    this.addListener('button-delete', 'click', () => { 
-      planet.delete()
-      this.close()
-    })
-    this.addListener('note-menu-container', 'click', (event : MouseEvent) => {
-      event.stopPropagation()
-    })
-    this.addListener('select-octave', 'change', (event : any) => {
-      planet.setNoteParam('octave', Number(selectOctave.value))
-    })
-    this.addListener('select-note', 'change', (event : any) => {
-      planet.setNoteParam('note', Number(selectNote.value))
-    })
-    this.addListener('select-gate', 'change', (event : any) => {
-      planet.setNoteParam('gate', Number(selectGate.value))
-    })
-    this.addListener('input-length', 'change', (event : any) => {
-      planet.setNoteParam('length', Number(inputLength.value))
-    })
+    // // add listeners
+    // this.addListener(null, 'click', () => this.close())
+    // this.addListener('button-close', 'click', () => this.close())
+    // this.addListener('button-delete', 'click', () => { 
+    //   planet.delete()
+    //   this.close()
+    // })
+    // this.addListener('note-menu-container', 'click', (event : MouseEvent) => {
+    //   event.stopPropagation()
+    // })
+    // this.addListener('select-octave', 'change', (event : any) => {
+    //   planet.setNoteParam('octave', Number(selectOctave.value))
+    // })
+    // this.addListener('select-note', 'change', (event : any) => {
+    //   planet.setNoteParam('note', Number(selectNote.value))
+    // })
+    // this.addListener('select-gate', 'change', (event : any) => {
+    //   planet.setNoteParam('gate', Number(selectGate.value))
+    // })
+    // this.addListener('input-length', 'change', (event : any) => {
+    //   planet.setNoteParam('length', Number(inputLength.value))
+    // })
 
     // apply container box style
     Object.assign(this.containerStyle, {

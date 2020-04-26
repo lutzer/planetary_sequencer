@@ -1,23 +1,19 @@
-import { InstrumentPlanet } from "../components/instrumentPlanets"
+import { PlanetSystemProperties } from "../components/planetSystem"
 
-type InstrumentModelScheme = {
-  bpm : number
-  orbits : OrbitModelScheme[]
-}
-
-type OrbitModelScheme = {
-  speed : number
-  steps: number
-  snap : boolean
-  notes : NoteModelScheme[]
-}
-
-type NoteModelScheme = {
-  length : number
-  gate : number
-  note : number
-  octave : number
-  phase : number
+const defaultValue : PlanetSystemProperties = {
+  channel: 1,
+  noteRoot: 1,
+  noteScale: 'chromatic',
+  position: [0.5,0.5],
+  bpm: 30,
+  orbits : [
+    { speed : 1/4, steps: 8, snap: true, planets: []},
+    { speed : 1/2, steps: 16, snap: true, planets: [
+      { note: 0, octave: 3, phase: 0, gate: 1},
+      { note: 0, octave: 4, phase: 0.5, gate: 1}
+    ]},
+    { speed : 1, steps: 32, snap: false, planets: []}
+  ]
 }
 
 class SynthStorage {
@@ -27,32 +23,21 @@ class SynthStorage {
       console.warn("local storage not available")
   }
 
-  load(loadDefault : boolean = false) : InstrumentModelScheme {
+  load(loadDefault : boolean = false) : PlanetSystemProperties[] {
     var loadedData = null
     if (!loadDefault) {
       try {
         loadedData = JSON.parse(localStorage.getItem('data'))
       } catch (err) {
-        console.info("Could not load saved data")
+        console.warn("Could not load saved data")
       }
     }
     // default settings
-    return Object.assign({ bpm: 30, orbits: [
-      { speed : 1/4, steps: 8, snap: true, notes: []},
-      { speed : 1/2, steps: 16, snap: true, notes: [
-        { note: 0, octave : 3, phase: 0, length: 1, gate: 1}
-      ]},
-      { speed : 1, steps: 32, snap: true, notes: []}
-    ]}, loadedData)
+    return Object.assign(
+      [defaultValue], loadedData)
   }
 
-  save(instrument: InstrumentPlanet) {
-    var data : InstrumentModelScheme = {
-      bpm: instrument.bpm,
-      orbits : instrument.orbits.map ( (orbit) => {
-        return orbit.getDataModel()
-      })
-    }
+  save(data: PlanetSystemProperties) {
     try {
       localStorage.setItem('data', JSON.stringify(data))
     } catch (err) {
@@ -65,4 +50,4 @@ class SynthStorage {
   }
 }
 
-export { SynthStorage, InstrumentModelScheme, OrbitModelScheme, NoteModelScheme }
+export { SynthStorage }

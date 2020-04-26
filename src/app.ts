@@ -1,81 +1,43 @@
 import _ from 'lodash';
 import { Stage } from "./engine/stage"
-import { InstrumentPlanet, NoteTriggerCallbackHandler } from './components/instrumentPlanets'
-import { NoteTrigger } from './sound/note'
-import { Orbit } from './components/orbit';
-import { NotePlanet, NoteContextMenuHandler } from './components/notePlanets';
-import { InteractiveCanvasElement } from './engine/interactiveCanvasElement';
-import { CanvasMouseEvent } from './engine/canvasMouse';
-import { NoteMenuOverlay } from './menu/noteMenuOverlay';
-import globals from './globals'
-import { MidiOutput } from './sound/midiOutput';
 import { SynthStorage } from './storage/storage';
+import { OutputDevice } from './sound/outputs';
+import { PlanetSystem, PlanetSystemProperties } from './components/planetSystem';
 
 const settings = {
   width: 512,
   height: 512,
-  zoom: 0.1,
-  fps : 60,
-  saveInterval: 5000
+  scale: 1,
+  fps : 60
 }
 
 const app = ( function() {
 
-  var storage = new SynthStorage()
-
-  var audioOutput = new MidiOutput({ channel: 1})
-
+  const audioOutput = new OutputDevice()
+  const storage = new SynthStorage()
   const stage = new Stage({ width: settings.width, height: settings.height })
-  const root = new InteractiveCanvasElement({ 
-    x: stage.width/2, 
-    y: stage.height/2, 
-    scale: Math.min(stage.width, stage.height)/2,
-    rotation : -Math.PI/2,
-    handleEventTypes : [] //ignore all events
+  
+  var props : PlanetSystemProperties[] = null
+  var systems : PlanetSystem[] = []
+
+  stage.onMouseEvent( (event) => {
+    systems.forEach( (system) => system.handleMouseEvent(event) )
   })
-
-  stage.onMouseEvent((event : CanvasMouseEvent) => {
-    root.handleMouseEvent(event)
-  })
-
-  // handler for sound triggers
-  const onNoteTrigger : NoteTriggerCallbackHandler = (sound: NoteTrigger, atTime: number, stepDuration : number) => {
-    console.info(['playnote',sound.getNoteString(),sound.getNoteDuration(), stepDuration])
-    if (audioOutput.isEnabled()) {
-      audioOutput.scheduleNote(sound.getNoteString(), stepDuration * sound.getNoteDuration(), atTime)
-    }
-  }
-
-  // creates menu overlay on note click
-  globals.onNoteContextMenu = function(planet: NotePlanet, position : [number, number]) {
-    var menu = new NoteMenuOverlay(planet, position)
-    stage.container.insertBefore(menu.domElement, stage.canvas)
-  }
-
-  // create root node
-  var instrument = new InstrumentPlanet({bpm: 30, scale: settings.zoom, noteTriggerCallback : onNoteTrigger})
-
-  // add instrument to canvas
-  root.addChild(instrument)
-
-  setInterval( () => {
-    storage.save(instrument)
-  }, settings.saveInterval)
   
   function setup(defaultValues = false) {
-    instrument.clear()
 
     // load data
-    var data = storage.load(defaultValues)
+    props = storage.load(true)
 
-    // setup planets
-    instrument.bpm = data.bpm
-    data.orbits.forEach( (orbitData) => {
-      const orbit = instrument.addChild(new Orbit({ speed: orbitData.speed, steps: orbitData.steps, snap: orbitData.snap}))
-      orbitData.notes.forEach( (noteData) => {
-        orbit.addChild(new NotePlanet({ octave: noteData.octave, note: noteData.note, phase: noteData.phase, gate: noteData.gate}))
-      });
-    })
+    // create systems
+    systems = props.map( (p) => new PlanetSystem(p))
+
+    console.log(props)
+
+    // setTimeout( () => {
+    //   props[0].orbits.shift()
+    //   console.log(props)
+    // },5000)
   } 
   
   function loop(time : number = 0.0, updated : number = 0.0) {
@@ -83,7 +45,7 @@ const app = ( function() {
     time = Math.round(audioOutput.time)
 
     if ((time-updated) > 1000/settings.fps) {
-      var context = stage.renderer
+      var context = stage.context
       context.resetTransform()
 
       //clear canvas
@@ -91,11 +53,11 @@ const app = ( function() {
       context.fillStyle = 'white'
       context.fillRect(0,0, stage.width, stage.height)
 
-      // update all nodes
-      instrument.update(time)
-      
-      //draw everything
-      root.render(stage)
+      // update systems
+      systems.forEach((system) => system.update(time))
+
+      // render all systems
+      systems.forEach((system) => system.render(stage))
 
       updated = time
     }
@@ -108,24 +70,24 @@ const app = ( function() {
       setup()
       loop()
     },
-    save : () => {
-      storage.save(instrument)
-    },
-    reset : () => {
-      setup(true)
-    },
-    enableSound(enable : boolean) {
-      audioOutput.enable(enable)
-    },
-    setBpm(bpm : number) {
-      instrument.bpm = bpm
-    },
-    getBpm() : number {
-      return instrument.bpm
-    },
-    setMidiChannel(channel : number) {
-      audioOutput.midiChannel = channel
-    }
+    // save : () => {
+    //   storage.save(instrument)
+    // },
+    // reset : () => {
+    //   setup(true)
+    // },
+    // enableSound(enable : boolean) {
+    //   audioOutput.enable(enable)
+    // },
+    // setBpm(bpm : number) {
+    //   instrument.bpm = bpm
+    // },
+    // getBpm() : number {
+    //   return instrument.bpm
+    // },
+    // setMidiChannel(channel : number) {
+    //   audioOutput.midiChannel = channel
+    // }
   }
 })()
 
