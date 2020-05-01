@@ -3,11 +3,11 @@ import { Stage } from "./engine/stage"
 import { SynthStorage } from './storage/storage';
 import { OutputDevice } from './sound/outputs';
 import { PlanetSystem, PlanetSystemProperties } from './components/planetSystem';
+import { CanvasElement } from './engine/canvasElement';
 
 const settings = {
   width: 512,
   height: 512,
-  scale: 1,
   fps : 60
 }
 
@@ -16,6 +16,8 @@ const app = ( function() {
   const audioOutput = new OutputDevice()
   const storage = new SynthStorage()
   const stage = new Stage({ width: settings.width, height: settings.height })
+  // const root = new CanvasElement({x: settings.width/2, y: settings.height/2, scale: settings.scale})
+  const root = new CanvasElement({x: settings.width/2, y: settings.height/2, scale: stage.maxSide, rotation: -Math.PI/2})
   
   var props : PlanetSystemProperties[] = null
   var systems : PlanetSystem[] = []
@@ -30,14 +32,7 @@ const app = ( function() {
     props = storage.load(true)
 
     // create systems
-    systems = props.map( (p) => new PlanetSystem(p))
-
-    console.log(props)
-
-    // setTimeout( () => {
-    //   props[0].orbits.shift()
-    //   console.log(props)
-    // },5000)
+    systems = props.map( (p) => new PlanetSystem(p,root))
   } 
   
   function loop(time : number = 0.0, updated : number = 0.0) {

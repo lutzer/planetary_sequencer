@@ -1,33 +1,26 @@
-import { Stage } from './stage'
-import { matrix, multiply, Matrix, inv } from 'mathjs'
-import { toDOMMatrix } from './utils'
+import { matrix, multiply, Matrix } from 'mathjs'
 import _ from 'lodash'
-import { CanvasGroup } from './canvasGroup'
 
-class CanvasElement extends CanvasGroup {
+class CanvasElement {
 
-  position : [number, number]
-  children : CanvasElement[] = []
-  parent: CanvasElement = null
-  scale : number = 1
-  rotation : number = 0
-
+  private parent: CanvasElement = null
   private transform : Matrix = null
 
-  constructor({x, y, scale = 1.0, rotation = 0} : {x : number, y : number, scale?: number, rotation? : number}) {
-    super()
+  protected position : [number, number] = [0,0]
+  protected scale : number = 1
+  protected rotation : number = 0
+
+  constructor({parent = null, x=0, y=0, rotation=0, scale=1} 
+    : {parent? : CanvasElement,  x?: number, y?: number, scale?: number, rotation?: number} = {}) 
+  {
+    this.parent = parent,
     this.position = [x,y]
     this.scale = scale
     this.rotation = rotation
   }
 
-  addChild(child : CanvasElement) : CanvasElement {
-    child.parent = this
-    return super.addChild(child)
-  }
-
   get transformMatrix() : Matrix {
-    var transform = matrix([
+    let transform = matrix([
       [ this.scale, 0, this.position[0] ],
       [ 0, this.scale, this.position[1] ],
       [ 0, 0, 1 ]
@@ -47,39 +40,38 @@ class CanvasElement extends CanvasGroup {
     return this.transform 
   }
 
-  get x() : number {
-    return this.position[0]
-  }
-  set x(val: number) {
-    this.position[0] = val
-  }
-  get y() : number {
-    return this.position[1]
-  }
-  set y(val: number) {
-    this.position[1] = val
-  }
-
-  render(stage: Stage) {
-    this.beforeDraw(stage)
-    this.draw(stage)
-    this.afterDraw(stage)
-  }
-
-  protected beforeDraw(stage : Stage) {
+  get absoluteScale() : number {
     if (this.parent)
-      stage.context.setTransform(toDOMMatrix(this.parent.transformMatrix))
+      return this.scale * this.parent.absoluteScale
     else
-      stage.context.resetTransform()
+      return this.scale
   }
 
-  draw(stage : Stage) {}
-
-  protected afterDraw(stage : Stage) {
-    this.children.forEach( (child) => {
-      child.render(stage)
-    })
+  get absolutePosition() : [number, number] {
+    let transform = this.transformMatrix
+    return [transform.get([0,2]),transform.get([1,2])]
   }
+
+  // get scale() : number {
+  //   return this._scale
+  // }
+  // set scale(scale: number) {
+  //   this._scale = scale
+  // }  
+
+  // get position() : [number,number] {
+  //   return this._position
+  // }
+  // set position(pos : [number, number]) {
+  //   this._position = pos
+  // }
+
+  // get rotation() : number {
+  //   return this._rotation
+  // }
+  // set rotation(rot: number) {
+  //   this._rotation = rot
+  // }
 }
 
 export { CanvasElement }

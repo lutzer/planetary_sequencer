@@ -1,11 +1,10 @@
 import { Stage } from "../engine/stage";
-import { PlanetOrbitProperties } from "./planetOrbit";
+import { PlanetOrbitProperties, PlanetOrbit } from "./planetOrbit";
 import { CanvasMouseEvent } from "../engine/canvasMouse";
-import * as math from "mathjs";
-import { toDOMMatrix } from "../engine/utils";
 import { TriggerScheduler } from "./triggerScheduler";
-import { Observable } from './../models/Observable'
 import _ from "lodash";
+import { CanvasElement } from "../engine/canvasElement";
+import { toDOMMatrix } from "../engine/utils";
 
 type PlanetSystemState = {
   time: number
@@ -26,11 +25,10 @@ const style = {
   stroke: 'black',
   opacity: 1.0,
   size: 1.0,
-  strokeWidth: 1,
-  scale : 10
+  strokeWidth: 1.0
 }
 
-class PlanetSystem {
+class PlanetSystem extends CanvasElement {
 
   readonly MAX_ORBITS = 5
 
@@ -41,14 +39,22 @@ class PlanetSystem {
 
   props : PlanetSystemProperties = null
 
-  scheduler : TriggerScheduler = null
+  schedulers : TriggerScheduler[] = []
 
-  constructor(props : PlanetSystemProperties) {
+  orbits : PlanetOrbit[] = []
+
+  constructor(props : PlanetSystemProperties, parent : CanvasElement = null) {
+    super({parent : parent})
     this.props = props
 
-    this.scheduler = new TriggerScheduler({ triggerCallback : (planet, time) => {
-      console.log([planet,time])
-    }})
+    this.position = props.position
+    this.scale = 0.1
+
+    this.schedulers = _.range(this.MAX_ORBITS).map( () => new TriggerScheduler({ triggerCallback : (...args) => {
+      console.log(args)
+    }}))
+
+    this.orbits = this.props.orbits.map((p) => new PlanetOrbit(p, this))
   }
 
   handleMouseEvent(event: CanvasMouseEvent) {
@@ -58,47 +64,36 @@ class PlanetSystem {
     
   }
 
-  // isPointInside(pos : [number, number]) : boolean {
-  //   const { size } =  this.props
-  //   const dist = Math.sqrt(pos[0]*pos[0]+pos[1]*pos[1])
-  //   return dist < size
-  // }
-
   update(time : number) {
     const { orbits, bpm } = this.props
     this.state.time = time;
 
     orbits.forEach( (orbit,i) => {
       const orbitalPeriod = orbit.speed * 240 / bpm * 1000
-      this.scheduler.checkTriggers(i, orbit.planets, time, orbitalPeriod)
+      this.schedulers[i].checkTriggers(orbit, time, orbitalPeriod)
     })
   }
 
   render(stage : Stage) {
+    const context = stage.context
+    const { size, fill, opacity, stroke, strokeWidth } = style
+    const { time } = this.state
+    const transform = this.transformMatrix
 
-    // const context = stage.context
-    // const { size, fill, opacity, stroke, strokeWidth, scale } = style
-    // const { time } = this.state
-    // const { position } = this.props
+    context.setTransform(toDOMMatrix(transform))
 
-    // const transform = math.matrix([
-    //   [ scale, 0, position[0]*stage.width ],
-    //   [ 0, scale, position[1]*stage.height ],
-    //   [ 0, 0, 1 ]
-    // ])
+    context.lineWidth = strokeWidth / this.absoluteScale
+    context.fillStyle = fill
+    context.strokeStyle = stroke
+    context.globalAlpha = opacity
 
-    // context.setTransform(toDOMMatrix(transform))
-
-    // context.lineWidth = strokeWidth / scale
-    // context.fillStyle = fill
-    // context.strokeStyle = stroke
-    // context.globalAlpha = opacity
-    // context.beginPath()
-    // context.arc(0, 0, size * scale, 0, 2*Math.PI)
-    // context.closePath()
-    // context.fill()
-    // context.stroke()
+    context.beginPath()
+    context.arc(0, 0, size, 0, 2*Math.PI)
+    context.closePath()
+    context.fill()
+    context.stroke()
     
+    this.orbits.forEach( (orbit,i) => orbit.render(stage,size + (i+1)))
   }
 
 }

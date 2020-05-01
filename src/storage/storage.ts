@@ -4,15 +4,15 @@ const defaultValue : PlanetSystemProperties = {
   channel: 1,
   noteRoot: 1,
   noteScale: 'chromatic',
-  position: [0.5,0.5],
+  position: [0,0],
   bpm: 30,
   orbits : [
-    { speed : 1/4, steps: 8, snap: true, planets: []},
-    { speed : 1/2, steps: 16, snap: true, planets: [
+    { speed : 1/4, steps: 8, snap: true, priority: 0, planets: []},
+    { speed : 1/2, steps: 16, snap: true, priority: 0, planets: [
       { note: 0, octave: 3, phase: 0, gate: 1},
-      { note: 0, octave: 4, phase: 0.5, gate: 1}
+      { note: 2, octave: 4, phase: 0.5, gate: 1}
     ]},
-    { speed : 1, steps: 32, snap: false, planets: []}
+    { speed : 1, steps: 32, snap: false, priority: 0, planets: []}
   ]
 }
 
