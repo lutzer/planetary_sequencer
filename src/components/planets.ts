@@ -27,14 +27,14 @@ class NotePlanet extends CanvasElement {
     this.props = props
   }
 
-  render(stage: Stage, distance = 0.0) {
+  render(stage: Stage, orbitRadius = 0.0) {
     const context = stage.context
     const { fill, opacity, stroke, strokeWidth, text } = style
     const { phase, octave, note } = this.props
     const phaseRad = phase * Math.PI*2
-    this.position = [Math.cos(phaseRad) * distance, Math.sin(phaseRad) * distance]
+    this.position = [Math.cos(phaseRad) * orbitRadius, Math.sin(phaseRad) * orbitRadius]
     
-    const size = 0.1 + octave * 0.05
+    const size = 0.02 + octave * 0.0025
     const transform = this.transformMatrix
     context.setTransform(toDOMMatrix(transform))
 

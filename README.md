@@ -16,7 +16,8 @@ Demo: [https://lutzer.github.io/planetary_sequencer/](https://lutzer.github.io/p
 * run with `npm start`
 * build html into docs folder with `npm run build`
 
-## Links
+## Useful Resources
 
 * https://www.html5rocks.com/en/tutorials/audio/scheduling/
 * https://sonoport.github.io/web-audio-clock.html
+* https://github.com/jorgebucaran/hyperapp

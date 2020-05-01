@@ -8,7 +8,8 @@ import { toDOMMatrix } from "../engine/utils";
 
 type PlanetSystemState = {
   time: number
-  selected: boolean
+  bpm: number,
+  selected: boolean,
 }
 
 type PlanetSystemProperties = {
@@ -17,14 +18,13 @@ type PlanetSystemProperties = {
   noteScale: string
   orbits: PlanetOrbitProperties[]
   position: [number, number]
-  bpm: 30
 }
 
 const style = {
   fill: 'white',
   stroke: 'black',
   opacity: 1.0,
-  size: 1.0,
+  size: 0.1,
   strokeWidth: 1.0
 }
 
@@ -34,6 +34,7 @@ class PlanetSystem extends CanvasElement {
 
   state : PlanetSystemState = {
     time: 0,
+    bpm: 60,
     selected : false
   }
 
@@ -48,7 +49,7 @@ class PlanetSystem extends CanvasElement {
     this.props = props
 
     this.position = props.position
-    this.scale = 0.1
+    this.scale = 1.0
 
     this.schedulers = _.range(this.MAX_ORBITS).map( () => new TriggerScheduler({ triggerCallback : (...args) => {
       console.log(args)
@@ -65,7 +66,8 @@ class PlanetSystem extends CanvasElement {
   }
 
   update(time : number) {
-    const { orbits, bpm } = this.props
+    const { orbits } = this.props
+    const { bpm } = this.state
     this.state.time = time;
 
     orbits.forEach( (orbit,i) => {
@@ -93,9 +95,9 @@ class PlanetSystem extends CanvasElement {
     context.fill()
     context.stroke()
     
-    this.orbits.forEach( (orbit,i) => orbit.render(stage,size + (i+1)))
+    this.orbits.forEach( (orbit,i) => orbit.render(stage, this.state, i))
   }
 
 }
 
-export { PlanetSystem, PlanetSystemProperties }
+export { PlanetSystem, PlanetSystemProperties, PlanetSystemState }
