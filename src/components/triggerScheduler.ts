@@ -1,5 +1,6 @@
 import { NotePlanetProperties } from "./planets"
 import { PlanetOrbitProperties } from "./planetOrbit"
+import _ from "lodash"
 
 interface TriggerCallbackHandler {
   (planet : NotePlanetProperties, priority: number, time : number) : void
@@ -16,7 +17,7 @@ class TriggerScheduler {
     scheduleAhead? : number
   } = {}
 
-  constructor({interval = 100, triggerCallback = () => {}, scheduleAhead = 0, } : { interval? : number, triggerCallback? : TriggerCallbackHandler, scheduleAhead? : number } = {}) {
+  constructor({interval = 1000, triggerCallback = () => {}, scheduleAhead = 0, } : { interval? : number, triggerCallback? : TriggerCallbackHandler, scheduleAhead? : number } = {}) {
     scheduleAhead = scheduleAhead ? scheduleAhead : interval * 1.5
     this.triggerCallbackHandler = triggerCallback
     Object.assign(this.props, {interval, scheduleAhead})
@@ -38,18 +39,24 @@ class TriggerScheduler {
     const planetPhases = orbit.planets.map( (planet) => planet.phase)
     const nextTriggers = planetPhases.map( (phase, index) => {
       let nextSteptrigger = startOfPeriod - phase * orbitalPeriod
+      let triggers : number[] = []
       while (nextSteptrigger < time)
+        nextSteptrigger += orbitalPeriod
+      while (nextSteptrigger < time + scheduleAhead) {
+        triggers.push(nextSteptrigger)
         nextSteptrigger += orbitalPeriod 
-      return nextSteptrigger
+      }
+      return triggers
     })
 
-
     // schedule triggers, when inside schedule window
-    nextTriggers.forEach( (triggerTime, i) => {
-      if (triggerTime - time < scheduleAhead && !this.scheduledTriggers.find( (t) => i == t.planet && t.time == triggerTime)) {
-        this.scheduledTriggers.push({ time: triggerTime, planet: i})
-        this.triggerCallbackHandler(orbit.planets[i], orbit.priority, triggerTime)
-      }
+    nextTriggers.forEach( (times, i) => {
+      times.forEach( (triggerTime) => {
+        if (!this.scheduledTriggers.find( (t) => i == t.planet && t.time == triggerTime)) {
+          this.scheduledTriggers.push({ time: triggerTime, planet: i})
+          this.triggerCallbackHandler(orbit.planets[i], orbit.priority, triggerTime)
+        }
+      })
     })
   }
 }

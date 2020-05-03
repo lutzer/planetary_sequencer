@@ -67,6 +67,7 @@ class PlanetOrbit extends CanvasElement {
       context.stroke()
     })
 
+    // draw cursor
     const orbitalPeriod = speed * 240 / bpm * 1000
     const cursorAngle = state.time * Math.PI * 2 / orbitalPeriod
     drawCursor(stage, cursorAngle, orbitRadius)

@@ -8,7 +8,8 @@ import { CanvasElement } from './engine/canvasElement';
 const settings = {
   width: 512,
   height: 512,
-  fps : 60
+  fps : 60,
+  scale: 1.0
 }
 
 const app = ( function() {
@@ -17,7 +18,7 @@ const app = ( function() {
   const storage = new SynthStorage()
   const stage = new Stage({ width: settings.width, height: settings.height })
   // const root = new CanvasElement({x: settings.width/2, y: settings.height/2, scale: settings.scale})
-  const root = new CanvasElement({x: settings.width/2, y: settings.height/2, scale: stage.maxSide, rotation: -Math.PI/2})
+  const root = new CanvasElement({x: settings.width/2, y: settings.height/2, scale: stage.maxSide * settings.scale, rotation: -Math.PI/2})
   
   var props : PlanetSystemProperties[] = null
   var systems : PlanetSystem[] = []
