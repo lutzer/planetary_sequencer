@@ -24,7 +24,7 @@
     "@types/webmidi": "^2.0.4",
     "canvas-sketch-util": "^1.10.0",
     "dat.gui": "^0.7.6",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mathjs": "^6.6.2",
     "music-scale": "^1.2.0",
     "nice-color-palettes": "^3.0.0",
